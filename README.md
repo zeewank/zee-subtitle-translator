@@ -15,6 +15,8 @@ Features
 -  **Speed Control**: Choose between Safe, Standard, or Aggressive translation modes
 -  **Bilingual UI**: English and Indonesian interface support
 
+  <img width="407" height="241" alt="Screenshot at 2025-11-11 15-52-56" src="https://github.com/user-attachments/assets/901a0e66-c335-46d8-bfb9-0ecabdb8dc8f" />
+
 ## 📋 Requirements
 
 - Python 3.7 or higher
@@ -60,6 +62,6 @@ termux-setup-storage
 
 ### ⚡ Quick Start
 
-New to the tool? Check out the [Quick Start Guide](quickstart_guide.md) for a 5-minute tutorial!
+New to the tool? Check out the [Quick Start Guide](QUICKSTART.md) for a 5-minute tutorial!
 
 ⭐ Star this repo if you find it helpful
