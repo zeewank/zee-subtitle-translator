@@ -231,14 +231,6 @@ pip install -r requirements.txt
 3. Try different time of day
 4. Use WiFi instead of mobile data
 
----
-
-## 📚 Learn More
-
-- **Detailed Guide:** [USAGE.md](USAGE.md)
-- **Windows Setup:** [INSTALL_WINDOWS.md](INSTALL_WINDOWS.md)
-- **Android Setup:** [INSTALL_ANDROID.md](INSTALL_ANDROID.md)
-- **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
