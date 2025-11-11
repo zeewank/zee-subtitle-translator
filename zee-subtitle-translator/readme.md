@@ -220,7 +220,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 💬 Support
 
 - ❓ FAQ: Check [Frequently Asked Questions](FAQ.md)
-- 📖 Documentation: See [Documentation Index](DOCS_INDEX.md)
 
 ## 💖 Support Project
 
