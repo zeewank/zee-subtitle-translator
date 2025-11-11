@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg)]()
 
-## ✨ Features
+##  Features
 
 - 🚀 **Multiple Translation Engines**: Google Translate (free) & DeepL API support
 - 📁 **Batch Processing**: Translate multiple files and folders at once
@@ -50,7 +50,7 @@ chmod +x installer.sh
 3. Double-click `install_windows.bat`
 4. Double-click `run_translator.bat`
 
-📖 **Detailed Guide:** [Windows Installation](INSTALL_WINDOWS.md)
+📖 **Detailed Guide:**
 
 ### 📱 Android (Termux)
 
@@ -59,7 +59,6 @@ chmod +x installer.sh
 pkg update -y && pkg install -y python git
 git clone https://github.com/yourusername/zee-subtitle-translator.git
 cd zee-subtitle-translator
-pip install -r requirements.txt
 termux-setup-storage
 ./zee_translator.py
 ```
