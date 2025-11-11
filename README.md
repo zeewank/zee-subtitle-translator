@@ -53,7 +53,7 @@ chmod +x installer.sh
 ```bash
 # Install Termux from F-Droid, then:
 pkg update -y && pkg install -y python git
-git clone https://github.com/yourusername/zee-subtitle-translator.git
+git clone https://github.com/zeewank/zee-subtitle-translator.git
 cd zee-subtitle-translator
 pip install -r requirements.txt
 termux-setup-storage
@@ -62,6 +62,6 @@ termux-setup-storage
 
 ### ⚡ Quick Start
 
-New to the tool? Check out the [Quick Start Guide](QUICKSTART.md) for a 5-minute tutorial!
+New to the tool? Check out the [Quick Start Guide](https://github.com/zeewank/zee-subtitle-translator/blob/main/zee-subtitle-translator/QUICKSTART.md "QUICKSTART.md") for a 5-minute tutorial! 
 
 ⭐ Star this repo if you find it helpful
