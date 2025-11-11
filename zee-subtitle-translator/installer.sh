@@ -17,7 +17,7 @@ COLOR_MAGENTA='\033[95m'
 echo -e "${COLOR_CYAN}"
 cat << "EOF"
 ╔═══════════════════════════════════════════╗
-║    ZEE SUBTITLE TRANSLATOR INSTALLER     ║
+║    ZEE SUBTITLE TRANSLATOR INSTALLER      ║
 ║              Version 1.0                  ║
 ╚═══════════════════════════════════════════╝
 EOF
@@ -209,7 +209,6 @@ python3 -m pip install --upgrade pip --quiet
 msg_installing
 echo
 
-python3 -m pip install -r requirements.txt
 
 if [ $? -eq 0 ]; then
     echo
