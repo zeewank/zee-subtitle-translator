@@ -31,7 +31,6 @@ python3 --version
 1. Check internet connection
 2. Try manual installation: `pip install srt deep-translator tqdm chardet pysubs2`
 3. Run as administrator (Windows) or with `sudo` (Linux)
-4. Check [platform-specific guide](DOCS_INDEX.md#platform-specific)
 
 ---
 
@@ -175,7 +174,7 @@ python3 --version
 ### Q: Can I use custom dictionaries?
 
 **A:** Not yet, but it's planned! Track progress:
-- [Feature Request #XX](https://github.com/yourusername/zee-subtitle-translator/issues)
+- [Feature Request #XX](https://github.com/zeewank/zee-subtitle-translator/issues)
 
 ---
 
@@ -377,9 +376,8 @@ See [DeepL Pricing](https://www.deepl.com/pro-api)
 ### Q: Can you add feature X?
 
 **A:** Maybe! Check:
-1. [GitHub Issues](https://github.com/yourusername/zee-subtitle-translator/issues) - Is it already requested?
-2. [CHANGELOG.md](CHANGELOG.md) - Is it planned?
-3. Open new issue with `enhancement` label
+1. [GitHub Issues](https://github.com/zeewank/zee-subtitle-translator/issues) - Is it already requested?
+2. Open new issue with `enhancement` label
 
 ### Q: Most requested features?
 
@@ -390,9 +388,6 @@ See [DeepL Pricing](https://www.deepl.com/pro-api)
 4. 🔄 Custom dictionaries (Planned)
 5. 🔄 More subtitle formats (Under consideration)
 
-### Q: Can I help add features?
-
-**A:** Yes! See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
@@ -403,28 +398,26 @@ See [DeepL Pricing](https://www.deepl.com/pro-api)
 1. **Read documentation:**
    - [USAGE.md](USAGE.md) - Detailed guide
    - [QUICKSTART.md](QUICKSTART.md) - Quick tutorial
-   - [Platform guides](DOCS_INDEX.md) - Platform-specific help
 
 2. **Search existing issues:**
-   - [GitHub Issues](https://github.com/yourusername/zee-subtitle-translator/issues)
+   - [GitHub Issues](https://github.com/zeewank/zee-subtitle-translator/issues)
 
 3. **Ask community:**
-   - [GitHub Discussions](https://github.com/yourusername/zee-subtitle-translator/discussions)
+   - [GitHub Discussions](https://github.com/zeewank/zee-subtitle-translator/discussions)
 
 4. **Report bugs:**
-   - [Create new issue](https://github.com/yourusername/zee-subtitle-translator/issues/new)
+   - [Create new issue](https://github.com/zeewank/zee-subtitle-translator/issues/new)
 
 ---
 
 ## 📞 Quick Contact
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/zee-subtitle-translator/issues)
-- 💡 **Feature Requests**: [GitHub Issues](https://github.com/yourusername/zee-subtitle-translator/issues)
-- 💬 **Questions**: [GitHub Discussions](https://github.com/yourusername/zee-subtitle-translator/discussions)
-- 📖 **Documentation**: [DOCS_INDEX.md](DOCS_INDEX.md)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/zeewank/zee-subtitle-translator/issues)
+- 💡 **Feature Requests**: [GitHub Issues](https://github.com/zeewank/zee-subtitle-translator/issues)
+- 💬 **Questions**: [GitHub Discussions](https://github.com/zeewank/zee-subtitle-translator/discussions)
 
 ---
 
 **Didn't find your answer?**
 
-Ask in [Discussions](https://github.com/yourusername/zee-subtitle-translator/discussions) or create an [Issue](https://github.com/yourusername/zee-subtitle-translator/issues)!
+Ask in [Discussions](https://github.com/zeewank/zee-subtitle-translator/discussions) or create an [Issue](https://github.com/zeewank/zee-subtitle-translator/issues)!
