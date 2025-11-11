@@ -14,3 +14,52 @@ Features
 -  **Smart Detection**: Auto-detects file encoding and proper names
 -  **Speed Control**: Choose between Safe, Standard, or Aggressive translation modes
 -  **Bilingual UI**: English and Indonesian interface support
+
+## 📋 Requirements
+
+- Python 3.7 or higher
+- pip (Python package manager)
+- Internet connection (for translation APIs)
+
+## 🚀 Quick Install
+
+### 🐧 Linux / macOS
+
+```bash
+# Clone the repository
+git clone https://github.com/zeewank/zee-subtitle-translator.git
+cd zee-subtitle-translator
+
+# Run the installer
+chmod +x installer.sh
+./installer.sh
+
+# Start translating!
+./zee_translator.py
+```
+
+### 🪟 Windows
+
+**Easy Install:**
+1. Download (https://github.com/zeewank/zee-subtitle-translator/releases)
+2. Extract ZIP file
+3. Double-click `install_windows.bat`
+4. Double-click `run_translator.bat`
+
+### 📱 Android (Termux)
+
+```bash
+# Install Termux from F-Droid, then:
+pkg update -y && pkg install -y python git
+git clone https://github.com/yourusername/zee-subtitle-translator.git
+cd zee-subtitle-translator
+pip install -r requirements.txt
+termux-setup-storage
+./zee_translator.py
+```
+
+### ⚡ Quick Start
+
+New to the tool? Check out the [Quick Start Guide](quickstart_guide.md) for a 5-minute tutorial!
+
+⭐ Star this repo if you find it helpful
