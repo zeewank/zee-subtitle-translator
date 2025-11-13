@@ -1,46 +1,46 @@
-# 📚 Tutorial Instalasi Lengkap - Semua Platform
+# Tutorial Instalasi Lengkap - Semua Platform
 
 Panduan install Zee Subtitle Translator untuk pemula di Linux, Windows, dan Android.
 
-✨ Fitur-Fitur
+## Fitur-Fitur
 
-- 🚀 Banyak Pilihan Mesin Terjemah: Bisa pakai Google Translate (gratis) atau DeepL API
-- 📁 Terjemahkan Banyak File Sekaligus: Gak perlu satu-satu, bisa langsung banyak file dan folder
-- 🎯 Pilih File dengan Mudah: Ada browser file interaktif yang gampang dipake, bisa pilih dari beberapa folder sekaligus
-- 🧹 Bersihin Teks Otomatis: Hapus sendiri tag-tag kayak [MUSIC], (SOUND), dan yang sejenis
-- 🎬 Kasih Nama Anda: Tambahin kredit atau nama Anda di subtitle hasil terjemahan
-- 📊 Pantau Progress: Ada progress bar yang jalan dan laporan lengkap setelah selesai
-- 🔤 Support Banyak Format: SRT, VTT, sama ASS semua bisa
-- 🧠 Deteksi Pintar: Otomatis deteksi encoding file dan nama-nama yang gak perlu diterjemahkan
-- ⚡ Atur Kecepatan: Pilih mode Aman (lambat tapi aman), Standar, atau Agresif (cepat tapi berisiko)
-- 🌍 Dua Bahasa: Menu bisa dalam bahasa Inggris atau Indonesia, terserah Anda
+- Banyak pilihan mesin terjemah (Google Translate gratis atau DeepL API)
+- Terjemahkan banyak file sekaligus
+- Pilih file dengan mudah menggunakan browser interaktif
+- Bersihin teks otomatis (hapus tag [MUSIC], (SOUND), dll)
+- Kasih kredit nama Anda di subtitle hasil terjemahan
+- Pantau progress dengan progress bar
+- Support format SRT, VTT, dan ASS
+- Deteksi encoding otomatis dan nama yang tidak perlu diterjemahkan
+- Atur kecepatan: Aman (lambat), Standar, atau Agresif (cepat)
+- Menu dalam bahasa Inggris atau Indonesia
 
 ---
 
-## 🐧 TUTORIAL LINUX (Ubuntu/Debian)
+## TUTORIAL LINUX (Ubuntu/Debian)
 
 ### Langkah 1: Update System
 
-Buka **Terminal** (Ctrl + Alt + T) dan jalankan:
+Buka Terminal (Ctrl + Alt + T) dan jalankan:
 
 ```bash
 sudo apt update
 sudo apt upgrade -y
 ```
 
-Masukkan password Anda jika diminta.
+Masukkan password jika diminta.
 
-### Langkah 2: Install Python & Git
+### Langkah 2: Install Python dan Git
 
 ```bash
 sudo apt install -y python3 python3-pip git
 ```
 
-Verifikasi install:
+Verifikasi instalasi:
 ```bash
-python3 --version    # Harus Python 3.7+
-pip3 --version       # Harus ada
-git --version        # Harus ada
+python3 --version    # Harus Python 3.7 ke atas
+pip3 --version
+git --version
 ```
 
 ### Langkah 3: Download Project
@@ -64,7 +64,7 @@ chmod +x installer.sh
 ./installer.sh
 ```
 
-**Pilih bahasa:**
+Pilih bahasa:
 - Ketik `1` untuk English
 - Ketik `2` untuk Bahasa Indonesia
 
@@ -73,99 +73,96 @@ Tunggu sampai selesai (2-5 menit).
 ### Langkah 5: Test Program
 
 ```bash
-./zee_translator.py
+zeetranslator
 ```
 
-**Harus muncul:**
-```
-╔═══════════════════════════════════════════╗
-║                                           ║
-║        ZEE SUBTITLE TRANSLATOR v1.0       ║
-║                                           ║
-╚═══════════════════════════════════════════╝
-Selamat datang!
-```
+Harus muncul menu utama dengan logo Zee Subtitle Translator.
 
-✅ **Instalasi Linux Berhasil!**
+**Instalasi Linux selesai.**
 
-### Cara Menjalankan:
+### Cara Menjalankan
 
 ```bash
-# Method 1: Direct
+# Dari mana saja (karena sudah global):
+zeetranslator
+
+# Atau cara tradisional:
 cd ~/zee-subtitle-translator
 ./zee_translator.py
 
-# Method 2: With Python
+# Atau dengan Python:
 python3 ~/zee-subtitle-translator/zee_translator.py
 
-# Method 3: Dengan path folder
-./zee_translator.py ~/Videos/Subtitles
+# Dengan path folder langsung:
+zeetranslator ~/Videos/Subtitles
 ```
 
-### Membuat Shortcut (Optional):
+### Membuat Shortcut Desktop (Optional)
 
 ```bash
-# Buat alias di ~/.bashrc
-echo 'alias ztrans="python3 ~/zee-subtitle-translator/zee_translator.py"' >> ~/.bashrc
-source ~/.bashrc
+# Buat file .desktop
+cat > ~/.local/share/applications/zeetranslator.desktop << 'EOF'
+[Desktop Entry]
+Name=Zee Translator
+Comment=Subtitle Translator Tool
+Exec=gnome-terminal -- zeetranslator
+Icon=subtitle
+Terminal=true
+Type=Application
+Categories=Utility;
+EOF
 
-# Sekarang bisa pakai:
-ztrans
+# Update database
+update-desktop-database ~/.local/share/applications/
 ```
+
+Sekarang bisa dicari di Applications menu.
 
 ---
 
-## 🪟 TUTORIAL WINDOWS 10/11
+## TUTORIAL WINDOWS 10/11
 
 ### Langkah 1: Install Python
 
-1. **Download Python:**
-   - Buka [python.org/downloads](https://www.python.org/downloads/)
-   - Klik "Download Python 3.x.x" (versi terbaru)
-   - File `.exe` akan terdownload
+**Download Python:**
+1. Buka browser, ke [python.org/downloads](https://www.python.org/downloads/)
+2. Klik tombol hijau "Download Python 3.x.x"
+3. File .exe akan terdownload
 
-2. **Install Python:**
-   - **Double-click** file yang didownload
-   - ⚠️ **PENTING:** **Centang** ✅ **"Add Python to PATH"** di bagian bawah
-   - Klik **"Install Now"**
-   - Tunggu sampai selesai
-   - Klik **"Close"**
+**Install Python:**
+1. Double-click file installer
+2. **PENTING:** Centang "Add Python to PATH" di bagian bawah
+3. Klik "Install Now"
+4. Tunggu sampai selesai
+5. Klik "Close"
 
-3. **Verifikasi Install:**
-   - Tekan **Win + R**
-   - Ketik `cmd` lalu Enter
-   - Di Command Prompt, ketik:
-     ```cmd
-     python --version
-     ```
-   - Harus muncul: `Python 3.x.x`
+**Verifikasi:**
+1. Tekan Win + R
+2. Ketik `cmd` lalu Enter
+3. Di Command Prompt, ketik:
+   ```cmd
+   python --version
+   ```
+4. Harus muncul: `Python 3.x.x`
 
 ### Langkah 2: Download Project
 
-**Method 1: Download ZIP (Paling Mudah)**
+**Cara 1: Download ZIP (Paling Mudah)**
 
-1. **Buka browser** ke:
-   ```
-   https://github.com/zeewank/zee-subtitle-translator
-   ```
-
-2. **Klik tombol hijau "Code"**
-
-3. **Klik "Download ZIP"**
-
-4. **Extract ZIP:**
+1. Buka browser ke [github.com/zeewank/zee-subtitle-translator](https://github.com/zeewank/zee-subtitle-translator)
+2. Klik tombol hijau "Code"
+3. Klik "Download ZIP"
+4. Extract ZIP:
    - Klik kanan file ZIP
    - Pilih "Extract All..."
-   - Pilih lokasi (misalnya `C:\ZeeTranslator\`)
+   - Pilih lokasi (contoh: `C:\ZeeTranslator\`)
    - Klik "Extract"
 
-**Method 2: Git Clone (Butuh Git)**
+**Cara 2: Git Clone (Butuh Git)**
 
-1. **Install Git:**
-   - Download dari [git-scm.com/download/win](https://git-scm.com/download/win)
-   - Install dengan setting default
-
-2. **Clone repository:**
+1. Install Git dari [git-scm.com/download/win](https://git-scm.com/download/win)
+2. Buka Command Prompt
+3. Ketik:
    ```cmd
    cd C:\
    git clone https://github.com/zeewank/zee-subtitle-translator.git
@@ -174,23 +171,23 @@ ztrans
 
 ### Langkah 3: Install Dependencies
 
-**Method 1: Auto Installer (Recommended)**
+**Cara Otomatis (Recommended):**
 
-1. **Buka folder project** di File Explorer
-2. **Double-click** file `install_windows.bat`
+1. Buka folder project di File Explorer
+2. Double-click file `install_windows.bat`
 3. Tunggu proses install (2-5 menit)
 4. Akan muncul pesan sukses
 5. Press any key untuk close
 
-**Method 2: Manual (Jika auto gagal)**
+**Cara Manual (Jika otomatis gagal):**
 
-1. **Buka Command Prompt di folder project:**
+1. Buka Command Prompt di folder project:
    - Buka File Explorer
    - Navigate ke folder `zee-subtitle-translator`
-   - Klik di address bar (path folder di atas)
+   - Klik address bar
    - Ketik `cmd` lalu Enter
 
-2. **Install dependencies:**
+2. Install dependencies:
    ```cmd
    python -m pip install --upgrade pip
    python -m pip install -r requirements.txt
@@ -200,22 +197,24 @@ ztrans
 
 ### Langkah 4: Test Program
 
-**Method 1: Double-click**
-- Double-click file `run_translator.bat`
-
-**Method 2: Command Prompt**
+**Cara 1: Command Prompt**
 ```cmd
-python zee_translator.py
+zeetranslator
 ```
 
-**Harus muncul menu utama!**
+**Cara 2: Double-click**
+- Double-click file `run_translator.bat`
 
-✅ **Instalasi Windows Berhasil!**
+Harus muncul menu utama.
 
-### Cara Menjalankan:
+**Instalasi Windows selesai.**
+
+### Cara Menjalankan
 
 **Termudah:**
-- Double-click `run_translator.bat`
+```cmd
+zeetranslator
+```
 
 **Dari Command Prompt:**
 ```cmd
@@ -225,28 +224,28 @@ python zee_translator.py
 
 **Dengan path folder:**
 ```cmd
-python zee_translator.py "C:\Users\YourName\Videos\Subtitles"
+zeetranslator "C:\Users\NamaAnda\Videos\Subtitles"
 ```
 
-### Membuat Desktop Shortcut:
+### Membuat Desktop Shortcut
 
-1. **Klik kanan** pada `run_translator.bat`
-2. Pilih **"Send to"** → **"Desktop (create shortcut)"**
+1. Klik kanan pada `run_translator.bat`
+2. Pilih "Send to" → "Desktop (create shortcut)"
 3. Rename shortcut jadi "Zee Translator"
-4. Double-click untuk run!
+4. Double-click untuk menjalankan
 
-### Troubleshooting Windows:
+### Troubleshooting Windows
 
 **Problem: "Python is not recognized"**
 
-Solution:
+Solusi:
 1. Uninstall Python
 2. Install ulang
-3. ✅ **CENTANG "Add Python to PATH"**
+3. **PASTIKAN centang "Add Python to PATH"**
 
 **Problem: "pip is not recognized"**
 
-Solution:
+Solusi:
 ```cmd
 python -m ensurepip --upgrade
 python -m pip install --upgrade pip
@@ -254,42 +253,42 @@ python -m pip install --upgrade pip
 
 **Problem: "Permission denied"**
 
-Solution:
-- Run Command Prompt as Administrator
+Solusi:
+- Klik kanan Command Prompt
+- Pilih "Run as Administrator"
 - Atau disable Antivirus sementara
 
 ---
 
-## 📱 TUTORIAL ANDROID (Termux)
+## TUTORIAL ANDROID (Termux)
 
 ### Langkah 1: Install Termux
 
-⚠️ **PENTING: Jangan install dari Google Play Store!**
+**PENTING: Jangan install dari Google Play Store!**
 
-**Method 1: F-Droid (Recommended)**
+**Cara 1: F-Droid (Recommended)**
 
-1. **Download F-Droid:**
+1. Download F-Droid:
    - Buka browser di HP
    - Ke [f-droid.org](https://f-droid.org)
    - Download F-Droid APK
-   - Install F-Droid (enable "Unknown sources" jika diminta)
+   - Install (enable "Unknown sources" jika diminta)
 
-2. **Install Termux dari F-Droid:**
+2. Install Termux dari F-Droid:
    - Buka F-Droid app
-   - Search "Termux"
+   - Cari "Termux"
    - Install
 
-**Method 2: GitHub Direct**
+**Cara 2: GitHub Direct**
 
-1. **Download Termux APK:**
-   - Buka browser
-   - Ke [github.com/termux/termux-app/releases](https://github.com/termux/termux-app/releases)
-   - Download file `termux-app_vX.XX.apk` (yang terbaru)
-   - Install APK (enable "Unknown sources")
+1. Buka browser
+2. Ke [github.com/termux/termux-app/releases](https://github.com/termux/termux-app/releases)
+3. Download file `termux-app_vX.XX.apk` (yang terbaru)
+4. Install APK (enable "Unknown sources")
 
-### Langkah 2: Setup Termux
+### Langkah 2: Update Termux
 
-**Buka Termux**, lalu jalankan command ini **SATU PER SATU**:
+Buka Termux, lalu jalankan:
 
 ```bash
 # Update package list
@@ -299,58 +298,19 @@ pkg update -y
 pkg upgrade -y
 ```
 
-*Ketik `y` dan Enter jika ditanya.*
+Ketik `y` dan Enter jika ditanya.
+
+### Langkah 3: Install Git
 
 ```bash
-# Install Python dan Git
-pkg install -y python git
+pkg install -y git
 ```
 
-*Tunggu 2-5 menit.*
-
-```bash
-# Verifikasi install
-python --version
-git --version
-```
-
-Harus muncul versi Python dan Git.
-
-### Langkah 3: Setup Storage Access
-
-**Agar bisa akses file HP:**
-
-```bash
-termux-setup-storage
-```
-
-**Popup muncul** → **"Allow"**
-
-**Buat shortcut ke folder HP:**
-
-```bash
-# Shortcut ke Downloads
-ln -s /storage/emulated/0/Download ~/downloads
-
-# Shortcut ke Movies
-ln -s /storage/emulated/0/Movies ~/movies
-
-# Shortcut ke DCIM
-ln -s /storage/emulated/0/DCIM ~/dcim
-```
-
-Test:
-```bash
-ls ~/downloads    # Harus tampil isi Downloads
-ls ~/movies       # Harus tampil isi Movies
-```
+Tunggu 1-2 menit.
 
 ### Langkah 4: Download Project
 
 ```bash
-# Pindah ke home
-cd ~
-
 # Clone repository
 git clone https://github.com/zeewank/zee-subtitle-translator.git
 
@@ -361,121 +321,81 @@ cd zee-subtitle-translator
 ### Langkah 5: Install Dependencies
 
 ```bash
-# Install Python packages
-pip install -r requirements.txt
+# Jalankan script setup
+chmod +x setup_termux.sh
+./setup_termux.sh
 ```
 
-*Tunggu 3-5 menit.*
+Pilih bahasa:
+- Ketik `1` untuk English
+- Ketik `2` untuk Bahasa Indonesia
 
-```bash
-# Make executable
-chmod +x zee_translator.py
-```
+Script ini akan otomatis:
+- Install Python dan dependencies
+- Setup storage access (klik "Allow" saat popup muncul)
+- Buat shortcut ke Downloads, Movies, DCIM
+- Setup global command
+- Buat widget Termux
+
+Tunggu 3-5 menit sampai selesai.
 
 ### Langkah 6: Test Program
 
 ```bash
-./zee_translator.py
+zeetranslator
 ```
 
-**Harus muncul menu!**
+Harus muncul menu utama.
 
-✅ **Instalasi Android Berhasil!**
+**Instalasi Android selesai.**
 
-### Cara Menjalankan di Android:
+### Cara Menjalankan di Android
 
 **Basic:**
 ```bash
+zeetranslator
+```
+
+**Dengan folder tertentu:**
+```bash
+# Translate folder di Downloads
+zeetranslator ~/downloads/Subtitles
+
+# Translate folder di Movies
+zeetranslator ~/movies/MyMovie/
+```
+
+**Cara tradisional:**
+```bash
 cd ~/zee-subtitle-translator
 ./zee_translator.py
 ```
 
-**Dengan folder:**
-```bash
-./zee_translator.py ~/downloads/Subtitles
-```
+### Setup Widget Termux
 
-**Translate file di Movies:**
-```bash
-./zee_translator.py ~/movies/MyMovie/
-```
-
-### Membuat Shortcut di Termux:
-
-**Method 1: Alias**
-
-```bash
-# Edit .bashrc
-nano ~/.bashrc
-
-# Tambahkan di akhir file:
-alias ztrans='python ~/zee-subtitle-translator/zee_translator.py'
-
-# Save: Ctrl+X, Y, Enter
-
-# Reload bashrc
-source ~/.bashrc
-
-# Sekarang bisa pakai:
-ztrans
-```
-
-**Method 2: Script**
-
-```bash
-# Buat script
-cat > ~/ztrans.sh << 'EOF'
-#!/bin/bash
-cd ~/zee-subtitle-translator
-python zee_translator.py "$@"
-EOF
-
-# Make executable
-chmod +x ~/ztrans.sh
-
-# Run dengan:
-~/ztrans.sh
-```
-
-**Method 3: Widget (Advanced)**
-
-```bash
-# Buat folder widget
-mkdir -p ~/.shortcuts
-
-# Buat script widget
-cat > ~/.shortcuts/ZeeTranslator << 'EOF'
-#!/bin/bash
-cd ~/zee-subtitle-translator
-./zee_translator.py
-EOF
-
-chmod +x ~/.shortcuts/ZeeTranslator
-```
-
-**Cara pakai Widget:**
 1. Long-press home screen
-2. Add Widget
-3. Pilih "Termux:Widget"
-4. Select "ZeeTranslator"
-5. Tap widget untuk run!
+2. Tap "Widgets"
+3. Cari "Termux:Widget"
+4. Drag ke home screen
+5. Pilih "ZeeTranslator"
+6. Tap widget untuk langsung buka translator
 
-### Tips Android:
+### Tips Android
 
-**1. Install Keyboard yang Bagus:**
+**Install Keyboard yang Bagus:**
 - Install "Hacker's Keyboard" dari Play Store
-- Lebih mudah ketik command
+- Lebih mudah untuk ketik command
 
-**2. Keep Screen On:**
+**Keep Screen On:**
 - Termux → Settings → Enable "Wake Lock"
 - Screen tidak mati saat translate
 
-**3. Prevent Kill:**
+**Prevent Kill:**
 - Settings → Apps → Termux → Battery
 - Disable "Battery optimization"
 - Allow background activity
 
-**4. Use Tmux (For Long Jobs):**
+**Use Tmux (For Long Jobs):**
 ```bash
 # Install tmux
 pkg install tmux
@@ -484,20 +404,20 @@ pkg install tmux
 tmux new -s translation
 
 # Run translator
-./zee_translator.py
+zeetranslator
 
-# Detach: Ctrl+B then D
-# Screen bisa di-minimize, proses tetap jalan
+# Detach: Ctrl+B lalu tekan D
+# Screen bisa diminimize, proses tetap jalan
 
-# Reattach nanti:
+# Attach kembali nanti:
 tmux attach -t translation
 ```
 
-### Troubleshooting Android:
+### Troubleshooting Android
 
 **Problem: "Permission denied" saat ./zee_translator.py**
 
-Solution:
+Solusi:
 ```bash
 chmod +x zee_translator.py
 # Atau:
@@ -506,7 +426,7 @@ python zee_translator.py
 
 **Problem: "Cannot access /storage/emulated/0"**
 
-Solution:
+Solusi:
 ```bash
 termux-setup-storage
 # Klik "Allow" di popup
@@ -514,81 +434,157 @@ termux-setup-storage
 
 **Problem: "Module not found"**
 
-Solution:
+Solusi:
 ```bash
 pip install --force-reinstall -r requirements.txt
 ```
 
 **Problem: Termux crash saat translate**
 
-Solution:
-- Enable Wake Lock
+Solusi:
+- Enable Wake Lock di Settings
 - Disable battery optimization
 - Keep phone charging
-- Use Safe mode (option 1) untuk stability
+- Gunakan Safe mode untuk stability
 
 ---
 
-## ✅ Verification Checklist
+## Verification Checklist
 
 Setelah install di platform apapun, cek:
 
 - [ ] Program bisa dijalankan
 - [ ] Menu utama muncul dengan baik
 - [ ] Bisa browse folder
-- [ ] Test translate 1-2 file
+- [ ] Test translate 1-2 file kecil
 - [ ] Output file terbuat dengan benar
-- [ ] Colors tampil (optional)
+- [ ] Colors tampil (optional, tergantung terminal)
 
 ---
 
-## 🎯 Quick Reference
+## Quick Reference
 
-### Linux:
+### Linux
 ```bash
+zeetranslator
+# atau
 cd ~/zee-subtitle-translator
 ./zee_translator.py
 ```
 
-### Windows:
+### Windows
 ```cmd
-Double-click: run_translator.bat
-# Atau:
-cd C:\ZeeTranslator
-python zee_translator.py
+zeetranslator
+# atau double-click: run_translator.bat
 ```
 
-### Android:
+### Android
 ```bash
-cd ~/zee-subtitle-translator
-./zee_translator.py
+zeetranslator
+# atau tap widget Termux
 ```
 
 ---
 
-## 💖 Support Project
+## Contoh Penggunaan
+
+### Translate Satu Film
+
+```bash
+# Taruh file movie.srt di folder
+cd ~/Movies/MyMovie
+zeetranslator
+
+# Pilih:
+# - Current folder
+# - All files
+# - Same folder output
+# - Standard speed
+# - Language: id
+
+# Hasil: movie.id.srt terbuat
+```
+
+### Translate TV Series (Satu Season)
+
+```bash
+# Navigate ke season folder
+cd ~/Series/BreakingBad/Season1
+zeetranslator
+
+# Pilih:
+# - Current folder
+# - All files
+# - New subfolder: "Indonesian"
+# - Standard speed
+# - Language: id
+
+# Hasil: folder Indonesian/ dengan semua file .id.srt
+```
+
+### Translate Multiple Seasons
+
+```bash
+zeetranslator
+
+# Pilih:
+# - Multiple folders
+# - Browse ke Season1 → ketik s (select)
+# - Browse ke Season2 → ketik s (select)
+# - Browse ke Season3 → ketik s (select)
+# - Ketik 0 (finish)
+# - Keep structure
+# - Standard speed
+# - Language: id
+
+# Hasil: Setiap season dapat file terjemahan di folder aslinya
+```
+
+---
+
+## Tips
+
+**Yang Harus Dilakukan:**
+- Mulai dengan Standard mode
+- Test dengan 1-2 file dulu
+- Backup file original
+- Gunakan WiFi untuk batch besar
+- Organisir file sebelum translate
+
+**Yang Jangan Dilakukan:**
+- Jangan pakai Aggressive mode di percobaan pertama
+- Jangan translate 100+ file sekaligus
+- Jangan hapus file original langsung
+- Jangan close terminal saat processing
+- Jangan pakai mobile data untuk batch besar
+
+---
+
+## Support Project
 
 Jika tool ini bermanfaat:
 
-**🌍 PayPal (International):**
+**PayPal (International):**
 ```
 https://paypal.me/zeewank
 ```
 
-**🇮🇩 Trakteer (Indonesia):**
+**Trakteer (Indonesia):**
 ```
 https://trakteer.id/zeewank/tip
 ```
 
-Every support helps keep this project free! 🙏
+Setiap dukungan sangat membantu pengembangan project ini.
 
 ---
 
-## 📞 Butuh Bantuan?
+## Butuh Bantuan?
 
-- 📖 Baca [README.md](README.md)
-- 📚 Lihat [FAQ.md](FAQ.md)
+- Baca [README.md](README.md) untuk panduan umum
+- Lihat [FAQ.md](FAQ.md) untuk masalah umum
+- Lihat [GUIDE.md](GUIDE.md) untuk panduan detail
+- Buka issue di [GitHub](https://github.com/zeewank/zee-subtitle-translator/issues)
 
 ---
 
-**Selamat menggunakan Zee Subtitle Translator! 🎉**
+**Selamat menggunakan Zee Subtitle Translator!**
