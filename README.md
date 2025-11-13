@@ -24,8 +24,4 @@ Features
 - Internet connection (for translation APIs)
 
 
-### ⚡ Quick Start
-
-New to the tool? Check out the [Quick Start Guide](https://github.com/zeewank/zee-subtitle-translator/blob/main/zee-subtitle-translator/QUICKSTART.md "QUICKSTART.md") for a 5-minute tutorial! 
-
 ⭐ Star this repo if you find it helpful
