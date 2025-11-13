@@ -377,7 +377,6 @@ Every donation helps keep this project free and actively maintained! 🙏
 
 ## 📚 Documentation
 
-- 📖 [Quick Start Guide](QUICKSTART.md) - 5-minute tutorial
 - 📘 [Usage Guide](GUIDE.md) - Detailed features
 - ❓ [FAQ](FAQ.md) - Common questions
 - 🌏 [Tutorial Indonesia](Complete%20Install%20Tutorial%20(Bahasa%20Indonesia).md)
