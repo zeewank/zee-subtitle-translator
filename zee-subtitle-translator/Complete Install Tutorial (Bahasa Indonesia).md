@@ -547,7 +547,6 @@ zeetranslator
 **Yang Harus Dilakukan:**
 - Mulai dengan Standard mode
 - Test dengan 1-2 file dulu
-- Backup file original
 - Gunakan WiFi untuk batch besar
 - Organisir file sebelum translate
 
@@ -556,7 +555,7 @@ zeetranslator
 - Jangan translate 100+ file sekaligus
 - Jangan hapus file original langsung
 - Jangan close terminal saat processing
-- Jangan pakai mobile data untuk batch besar
+- Jangan pakai mobile data untuk batch besar (kecuali kalau mobile data nya stabil)
 
 ---
 
