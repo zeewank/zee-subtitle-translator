@@ -2,7 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
@@ -10,9 +11,35 @@ Nothing yet.
 
 ---
 
-## [1.0.0] - 2025-13-11
+## [1.0.0] - 2025-11-15
 
-Initial release.
+### Added
+- Global command `zeetranslator` - run from any directory
+- Automatic shell configuration for Linux/macOS
+- Windows global command support via WindowsApps directory
+- Android Termux setup script with storage location choice
+- Android storage shortcuts (downloads, movies, dcim)
+- Termux widget support for quick launch
+- Uninstaller script (uninstall.sh) for clean removal
+- ANDROID_STORAGE_GUIDE.md - detailed Android storage explanation
+- CONTRIBUTING.md guide for contributors
+- Proper .gitignore file
+- This CHANGELOG file
+
+### Changed
+- Fixed installer.sh to properly install Python dependencies
+- Updated README.md with uninstall section and Android instructions
+- Improved installer scripts with auto-reload and command testing
+- Enhanced Android/Termux setup with storage location choice
+- Updated all documentation to reference correct filenames
+
+### Fixed
+- installer.sh missing `pip install` command
+- Windows batch file not creating global command properly
+- Android storage access permission workflow
+- Command not immediately available after installation (now auto-reloads)
+- Termux installation location issue (now asks user preference)
+
 
 ### Features
 
@@ -79,33 +106,8 @@ Given a version number MAJOR.MINOR.PATCH:
 - MINOR: New features (backward compatible)
 - PATCH: Bug fixes (backward compatible)
 
-
-
 ---
 
-## Migration Guide
-
-
-
-**Linux/macOS:**
-```bash
-cd zee-subtitle-translator
-git pull origin main
-./installer.sh
-```
-
-**Windows:**
-```cmd
-cd zee-subtitle-translator
-git pull origin main
-install_windows.bat
-```
-
-**Android:**
-```bash
-cd zee-subtitle-translator
-git pull origin main
-./setup_termux.sh
 ```
 
 No breaking changes. All v1.0.0 commands still work. The `zeetranslator` global command is a new addition.
@@ -126,3 +128,6 @@ No breaking changes. All v1.0.0 commands still work. The `zeetranslator` global 
 ### Donate
 - PayPal: https://paypal.me/zeewank
 - Trakteer: https://trakteer.id/zeewank/tip
+
+---
+

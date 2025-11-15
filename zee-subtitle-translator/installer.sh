@@ -142,7 +142,7 @@ msg_installation_complete() {
 msg_quick_start() {
     if [ "$LANG" = "ID" ]; then
         echo -e "\n${COLOR_CYAN}Mulai Cepat:${COLOR_RESET}"
-        echo -e "  ${COLOR_GREEN}zeetranslator${COLOR_RESET}                # Jalankan dari mana saja!"
+        echo -e "  ${COLOR_GREEN}zeetranslator${COLOR_RESET}                # Jalankan dari mana saja"
         echo "  ./zee_translator.py              # Cara alternatif"
         echo "  python3 zee_translator.py        # Cara manual"
         echo ""
@@ -168,28 +168,16 @@ msg_quick_start() {
 
 msg_support() {
     echo ""
-    echo -e "${COLOR_MAGENTA}═══════════════════════════════════════════${COLOR_RESET}"
+    echo -e "${COLOR_MAGENTA}Support This Project${COLOR_RESET}"
     if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_MAGENTA}   💖 Dukung Proyek Ini / Support This Project${COLOR_RESET}"
+        echo -e "${COLOR_YELLOW}Jika tool ini bermanfaat, pertimbangkan untuk berdonasi${COLOR_RESET}"
     else
-        echo -e "${COLOR_MAGENTA}          💖 Support This Project${COLOR_RESET}"
-    fi
-    echo -e "${COLOR_MAGENTA}═══════════════════════════════════════════${COLOR_RESET}"
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_YELLOW}Jika tool ini bermanfaat, pertimbangkan untuk berdonasi:${COLOR_RESET}"
-    else
-        echo -e "${COLOR_YELLOW}If this tool is helpful, consider donating:${COLOR_RESET}"
+        echo -e "${COLOR_YELLOW}If this tool is helpful, consider donating${COLOR_RESET}"
     fi
     echo ""
-    echo -e "${COLOR_CYAN}  🌍 PayPal: https://paypal.me/zeewank${COLOR_RESET}"
-    echo -e "${COLOR_CYAN}  🇮🇩 Trakteer: https://trakteer.id/zeewank/tip${COLOR_RESET}"
+    echo -e "${COLOR_CYAN}  PayPal: https://paypal.me/zeewank${COLOR_RESET}"
+    echo -e "${COLOR_CYAN}  Trakteer: https://trakteer.id/zeewank/tip${COLOR_RESET}"
     echo ""
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_GREEN}Setiap dukungan sangat berarti untuk pengembangan! 🙏${COLOR_RESET}"
-    else
-        echo -e "${COLOR_GREEN}Every support means a lot for development! 🙏${COLOR_RESET}"
-    fi
-    echo -e "${COLOR_MAGENTA}═══════════════════════════════════════════${COLOR_RESET}"
 }
 
 # ============================================================
@@ -298,10 +286,18 @@ else
     echo -e "\n${COLOR_CYAN}Activating global command...${COLOR_RESET}"
 fi
 
+# Reload the shell config in current session
 source "$SHELL_CONFIG" 2>/dev/null || true
 
+# Also create alias in current shell session immediately
+alias zeetranslator="python3 $SCRIPT_PATH"
+
+echo -e "${COLOR_GREEN}Command 'zeetranslator' activated in current session${COLOR_RESET}"
+
 if [ "$LANG" = "ID" ]; then
-    echo -e "${COLOR_GREEN}✓ Siap digunakan! Ketik 'zeetranslator' untuk memulai${COLOR_RESET}\n"
+    echo -e "${COLOR_GREEN}Siap digunakan! Ketik 'zeetranslator' untuk memulai${COLOR_RESET}"
+    echo -e "${COLOR_YELLOW}Catatan: Untuk terminal baru nanti, command sudah otomatis tersedia${COLOR_RESET}\n"
 else
-    echo -e "${COLOR_GREEN}✓ Ready to use! Type 'zeetranslator' to start${COLOR_RESET}\n"
+    echo -e "${COLOR_GREEN}Ready to use! Type 'zeetranslator' to start${COLOR_RESET}"
+    echo -e "${COLOR_YELLOW}Note: For new terminals, command is automatically available${COLOR_RESET}\n"
 fi
