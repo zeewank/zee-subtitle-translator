@@ -1,0 +1,5 @@
+srt>=3.5.0
+deep-translator>=1.11.0
+tqdm>=4.65.0
+chardet>=5.1.0
+pysubs2>=1.6.0
