@@ -1,332 +1,290 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # ================================================================
-# Zee Subtitle Translator - Android/Termux Setup Script
-# Fixed version: Installs to accessible storage location
+# Zee Subtitle Translator - Bootstrap Installer for Android/Termux
+# One-line auto-installer - No git required
+# Downloads directly from GitHub
 # ================================================================
 
-COLOR_RESET='\033[0m'
-COLOR_GREEN='\033[92m'
-COLOR_YELLOW='\033[93m'
-COLOR_RED='\033[91m'
-COLOR_CYAN='\033[96m'
-COLOR_MAGENTA='\033[95m'
+set -e
 
-echo -e "${COLOR_CYAN}"
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+# Configuration
+REPO_URL="https://github.com/zeewank/zee-subtitle-translator"
+ZIP_URL="https://github.com/zeewank/zee-subtitle-translator/archive/refs/heads/main.zip"
+TEMP_DIR="$HOME/.zee-installer-$$"
+
+echo -e "${CYAN}"
 cat << "EOF"
 ╔═══════════════════════════════════════════╗
-║   ZEE SUBTITLE TRANSLATOR - TERMUX SETUP  ║
-║              Version 1.0                  ║
+║   ZEE SUBTITLE TRANSLATOR - INSTALLER     ║
+║     Android Auto-Download & Setup         ║
 ╚═══════════════════════════════════════════╝
 EOF
-echo -e "${COLOR_RESET}"
+echo -e "${NC}"
 
-echo -e "${COLOR_YELLOW}Pilih Bahasa / Select Language:${COLOR_RESET}"
-echo "  1) English"
-echo "  2) Bahasa Indonesia"
-read -p "Choice / Pilihan [1-2]: " LANG_CHOICE
-
-if [ "$LANG_CHOICE" = "2" ]; then
-    LANG="ID"
-else
-    LANG="EN"
-fi
-
-# [1/7] Update packages
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_YELLOW}[1/7] Memperbarui paket Termux...${COLOR_RESET}"
-else
-    echo -e "\n${COLOR_YELLOW}[1/7] Updating Termux packages...${COLOR_RESET}"
-fi
-
-pkg update -y
-pkg upgrade -y
-
-# [2/7] Install Python and Git
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_YELLOW}[2/7] Menginstal Python dan Git...${COLOR_RESET}"
-else
-    echo -e "\n${COLOR_YELLOW}[2/7] Installing Python and Git...${COLOR_RESET}"
-fi
-
-pkg install -y python git
-
-# [3/7] Setup storage
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_YELLOW}[3/7] Mengatur akses storage...${COLOR_RESET}"
-    echo -e "${COLOR_CYAN}PENTING: Klik 'Allow' pada popup yang muncul!${COLOR_RESET}"
-else
-    echo -e "\n${COLOR_YELLOW}[3/7] Setting up storage access...${COLOR_RESET}"
-    echo -e "${COLOR_CYAN}IMPORTANT: Click 'Allow' on the popup!${COLOR_RESET}"
-fi
-
-termux-setup-storage
-sleep 3
-
-# Verify storage access
-if [ ! -d "/storage/emulated/0" ]; then
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_RED}✗ Akses storage gagal! Jalankan ulang script ini.${COLOR_RESET}"
-    else
-        echo -e "${COLOR_RED}✗ Storage access failed! Re-run this script.${COLOR_RESET}"
-    fi
+# Check if in Termux
+if [ ! -d "/data/data/com.termux" ]; then
+    echo -e "${RED}[ERROR] This script must be run in Termux!${NC}"
+    echo ""
+    echo "Please install Termux from F-Droid:"
+    echo "  https://f-droid.org/packages/com.termux/"
+    echo ""
     exit 1
 fi
 
-# Create shortcuts to common folders
-if [ "$LANG" = "ID" ]; then
-    echo -e "${COLOR_CYAN}Membuat shortcut ke folder HP...${COLOR_RESET}"
-else
-    echo -e "${COLOR_CYAN}Creating shortcuts to phone folders...${COLOR_RESET}"
-fi
+echo -e "${GREEN}✓ Starting automatic installation...${NC}"
+echo ""
 
-ln -sf /storage/emulated/0/Download ~/downloads 2>/dev/null
-ln -sf /storage/emulated/0/Movies ~/movies 2>/dev/null
-ln -sf /storage/emulated/0/DCIM ~/dcim 2>/dev/null
+# Update packages
+echo -e "${CYAN}Updating Termux packages...${NC}"
+pkg update -y -q 2>/dev/null || pkg update -y
 
-# [4/7] Clone to accessible storage
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_YELLOW}[4/7] Menentukan lokasi instalasi...${COLOR_RESET}"
-    echo ""
-    echo -e "${COLOR_CYAN}PENTING: Pilih lokasi instalasi${COLOR_RESET}"
-    echo ""
-    echo "Termux punya 2 area storage:"
-    echo ""
-    echo "1. TERMUX HOME (~)"
-    echo "   Lokasi: /data/data/com.termux/files/home/"
-    echo "   ✓ Cepat diakses dari Termux"
-    echo "   ✗ Tidak bisa diakses dari file manager HP"
-    echo "   ✗ Hilang jika uninstall Termux"
-    echo ""
-    echo "2. SHARED STORAGE (Recommended)"
-    echo "   Lokasi: /storage/emulated/0/ (Internal Storage HP)"
-    echo "   ✓ Bisa diakses dari file manager HP"
-    echo "   ✓ Tetap ada walaupun uninstall Termux"
-    echo "   ✓ Bisa backup/share lebih mudah"
-    echo ""
-    read -p "Pilih lokasi [1-2] (default 2): " STORAGE_CHOICE
-else
-    echo -e "\n${COLOR_YELLOW}[4/7] Choosing installation location...${COLOR_RESET}"
-    echo ""
-    echo -e "${COLOR_CYAN}IMPORTANT: Choose installation location${COLOR_RESET}"
-    echo ""
-    echo "Termux has 2 storage areas:"
-    echo ""
-    echo "1. TERMUX HOME (~)"
-    echo "   Location: /data/data/com.termux/files/home/"
-    echo "   ✓ Fast access from Termux"
-    echo "   ✗ Can't access from phone file manager"
-    echo "   ✗ Lost if uninstall Termux"
-    echo ""
-    echo "2. SHARED STORAGE (Recommended)"
-    echo "   Location: /storage/emulated/0/ (Phone Internal Storage)"
-    echo "   ✓ Accessible from phone file manager"
-    echo "   ✓ Persists after uninstalling Termux"
-    echo "   ✓ Easier to backup/share"
-    echo ""
-    read -p "Choose location [1-2] (default 2): " STORAGE_CHOICE
-fi
+# Install required packages
+echo ""
+echo -e "${CYAN}Installing required packages...${NC}"
+pkg install -y -q python curl unzip 2>/dev/null || pkg install -y python curl unzip
 
-STORAGE_CHOICE=${STORAGE_CHOICE:-2}
+echo -e "${GREEN}✓ Required packages installed${NC}"
 
-if [ "$STORAGE_CHOICE" = "1" ]; then
+# Ask for installation location
+echo ""
+echo -e "${YELLOW}╔═══════════════════════════════════════════╗${NC}"
+echo -e "${YELLOW}║   WHERE TO INSTALL?                       ║${NC}"
+echo -e "${YELLOW}╚═══════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${CYAN}Choose installation location:${NC}"
+echo ""
+echo "  1. Termux Home (~/zee-subtitle-translator)"
+echo "     ✓ Faster"
+echo "     ✗ Not accessible from phone file manager"
+echo "     ✗ Deleted if Termux uninstalled"
+echo ""
+echo "  2. Shared Storage (/storage/emulated/0/ZeeTranslator)"
+echo "     ✓ Accessible from phone file manager"
+echo "     ✓ Persists after Termux uninstall"
+echo "     ✓ Easy to backup/share"
+echo "     ✗ Slightly slower"
+echo ""
+read -p "Choice [1-2] (default 2): " LOCATION_CHOICE
+LOCATION_CHOICE=${LOCATION_CHOICE:-2}
+
+if [ "$LOCATION_CHOICE" = "1" ]; then
     INSTALL_DIR="$HOME/zee-subtitle-translator"
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_YELLOW}Instalasi ke Termux Home${COLOR_RESET}"
-    else
-        echo -e "${COLOR_YELLOW}Installing to Termux Home${COLOR_RESET}"
-    fi
+    echo -e "${YELLOW}Installing to Termux Home...${NC}"
 else
+    # Setup storage access if needed
+    if [ ! -d "/storage/emulated/0" ]; then
+        echo ""
+        echo -e "${YELLOW}Setting up storage access...${NC}"
+        echo -e "${CYAN}Please click 'Allow' on the popup!${NC}"
+        echo ""
+        termux-setup-storage
+        sleep 2
+    fi
+    
     INSTALL_DIR="/storage/emulated/0/ZeeTranslator"
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_GREEN}Instalasi ke Shared Storage (Recommended)${COLOR_RESET}"
-        echo -e "${COLOR_CYAN}Folder: Internal Storage/ZeeTranslator/${COLOR_RESET}"
-    else
-        echo -e "${COLOR_GREEN}Installing to Shared Storage (Recommended)${COLOR_RESET}"
-        echo -e "${COLOR_CYAN}Folder: Internal Storage/ZeeTranslator/${COLOR_RESET}"
-    fi
+    echo -e "${GREEN}Installing to Shared Storage...${NC}"
 fi
 
-# Check if already exists
+# Check if already installed
 if [ -d "$INSTALL_DIR" ]; then
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_YELLOW}Folder sudah ada. Menggunakan folder existing.${COLOR_RESET}"
-    else
-        echo -e "${COLOR_YELLOW}Folder exists. Using existing folder.${COLOR_RESET}"
+    echo ""
+    echo -e "${YELLOW}⚠ Zee Translator already installed at: $INSTALL_DIR${NC}"
+    echo ""
+    read -p "Reinstall? (y/n): " REINSTALL
+    if [ "$REINSTALL" != "y" ] && [ "$REINSTALL" != "Y" ]; then
+        echo -e "${YELLOW}Installation cancelled.${NC}"
+        exit 0
     fi
-    cd "$INSTALL_DIR"
-else
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_CYAN}Mendownload project...${COLOR_RESET}"
-    else
-        echo -e "${COLOR_CYAN}Downloading project...${COLOR_RESET}"
-    fi
-    
-    cd "$(dirname "$INSTALL_DIR")"
-    git clone https://github.com/zeewank/zee-subtitle-translator.git "$(basename "$INSTALL_DIR")"
-    cd "$INSTALL_DIR"
+    echo ""
+    echo -e "${YELLOW}Removing old installation...${NC}"
+    rm -rf "$INSTALL_DIR"
 fi
 
-SCRIPT_PATH="$INSTALL_DIR/zee_translator.py"
+# Create temp directory
+mkdir -p "$TEMP_DIR"
+cd "$TEMP_DIR"
 
-# [5/7] Install dependencies
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_YELLOW}[5/7] Menginstal dependensi Python...${COLOR_RESET}"
-else
-    echo -e "\n${COLOR_YELLOW}[5/7] Installing Python dependencies...${COLOR_RESET}"
+# Download project
+echo ""
+echo -e "${CYAN}[1/6] Downloading project from GitHub...${NC}"
+echo -e "${BLUE}URL: $ZIP_URL${NC}"
+echo ""
+
+curl -L -o zee-translator.zip "$ZIP_URL" --progress-bar || {
+    echo -e "${RED}[ERROR] Download failed!${NC}"
+    echo "Please check your internet connection."
+    rm -rf "$TEMP_DIR"
+    exit 1
+}
+
+echo ""
+echo -e "${GREEN}✓ Download complete!${NC}"
+
+# Extract
+echo ""
+echo -e "${CYAN}[2/6] Extracting files...${NC}"
+unzip -q zee-translator.zip || {
+    echo -e "${RED}[ERROR] Extraction failed!${NC}"
+    rm -rf "$TEMP_DIR"
+    exit 1
+}
+
+# Move to install directory
+EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "zee-subtitle-translator-*" | head -n 1)
+if [ -z "$EXTRACTED_DIR" ]; then
+    echo -e "${RED}[ERROR] Could not find extracted directory!${NC}"
+    rm -rf "$TEMP_DIR"
+    exit 1
 fi
 
-pip install -r requirements.txt
+mkdir -p "$(dirname "$INSTALL_DIR")"
+mv "$EXTRACTED_DIR" "$INSTALL_DIR"
+echo -e "${GREEN}✓ Files extracted to: $INSTALL_DIR${NC}"
 
-# [6/7] Setup permissions
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_YELLOW}[6/7] Mengatur izin...${COLOR_RESET}"
-else
-    echo -e "\n${COLOR_YELLOW}[6/7] Setting up permissions...${COLOR_RESET}"
-fi
+# Clean up temp
+rm -rf "$TEMP_DIR"
 
-chmod +x zee_translator.py
+# Install dependencies
+cd "$INSTALL_DIR"
 
-# [7/7] Create global command
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_YELLOW}[7/7] Membuat command global 'zeetranslator'...${COLOR_RESET}"
-else
-    echo -e "\n${COLOR_YELLOW}[7/7] Creating global 'zeetranslator' command...${COLOR_RESET}"
-fi
+echo ""
+echo -e "${CYAN}[3/6] Installing Python dependencies...${NC}"
+echo "This may take 2-3 minutes..."
+echo ""
 
-# Create alias in .bashrc
-if ! grep -q "alias zeetranslator=" ~/.bashrc 2>/dev/null; then
-    echo "" >> ~/.bashrc
-    echo "# Zee Subtitle Translator" >> ~/.bashrc
-    echo "alias zeetranslator='python $SCRIPT_PATH'" >> ~/.bashrc
-    
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_GREEN}✓ Command global berhasil dibuat!${COLOR_RESET}"
-    else
-        echo -e "${COLOR_GREEN}✓ Global command created successfully!${COLOR_RESET}"
-    fi
-fi
+python -m pip install --upgrade pip --quiet --disable-pip-version-check 2>/dev/null || true
 
-# Create Termux widget shortcut
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_CYAN}Membuat widget shortcut...${COLOR_RESET}"
-else
-    echo -e "\n${COLOR_CYAN}Creating widget shortcut...${COLOR_RESET}"
-fi
+python -m pip install --quiet --disable-pip-version-check -r requirements.txt || {
+    echo -e "${RED}[ERROR] Failed to install dependencies!${NC}"
+    echo ""
+    echo "Please try manually:"
+    echo "  cd $INSTALL_DIR"
+    echo "  pip install -r requirements.txt"
+    exit 1
+}
 
-mkdir -p ~/.shortcuts
+echo -e "${GREEN}✓ Dependencies installed!${NC}"
 
-cat > ~/.shortcuts/ZeeTranslator << EOF
+# Make scripts executable
+chmod +x zee_translator.py 2>/dev/null || true
+chmod +x setup_termux.sh 2>/dev/null || true
+chmod +x uninstall.sh 2>/dev/null || true
+
+# Setup storage shortcuts
+echo ""
+echo -e "${CYAN}[4/6] Creating storage shortcuts...${NC}"
+
+ln -sf /storage/emulated/0/Download "$HOME/downloads" 2>/dev/null || true
+ln -sf /storage/emulated/0/Movies "$HOME/movies" 2>/dev/null || true
+ln -sf /storage/emulated/0/DCIM "$HOME/dcim" 2>/dev/null || true
+
+echo -e "${GREEN}✓ Storage shortcuts created!${NC}"
+echo "  ~/downloads → /storage/emulated/0/Download"
+echo "  ~/movies    → /storage/emulated/0/Movies"
+echo "  ~/dcim      → /storage/emulated/0/DCIM"
+
+# Setup global command
+echo ""
+echo -e "${CYAN}[5/6] Setting up global command...${NC}"
+
+SHELL_CONFIG="$HOME/.bashrc"
+
+# Remove old alias if exists
+sed -i.bak '/# Zee Subtitle Translator/,/alias zeetranslator=/d' "$SHELL_CONFIG" 2>/dev/null || true
+
+# Add new alias
+cat >> "$SHELL_CONFIG" << EOL
+
+# Zee Subtitle Translator
+alias zeetranslator='python $INSTALL_DIR/zee_translator.py'
+EOL
+
+echo -e "${GREEN}✓ Global command configured!${NC}"
+
+# Setup Termux widget
+echo ""
+echo -e "${CYAN}[6/6] Setting up Termux widget...${NC}"
+
+WIDGET_DIR="$HOME/.shortcuts"
+mkdir -p "$WIDGET_DIR"
+
+cat > "$WIDGET_DIR/ZeeTranslator" << EOL
 #!/data/data/com.termux/files/usr/bin/bash
 cd "$INSTALL_DIR"
 python zee_translator.py
-EOF
+EOL
 
-chmod +x ~/.shortcuts/ZeeTranslator
+chmod +x "$WIDGET_DIR/ZeeTranslator"
 
-# Activate in current session
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_CYAN}Mengaktifkan command di session ini...${COLOR_RESET}"
+echo -e "${GREEN}✓ Termux widget created!${NC}"
+
+# Test installation
+if python -c "import srt, deep_translator, tqdm, chardet, pysubs2" 2>/dev/null; then
+    echo -e "${GREEN}✓ All dependencies working!${NC}"
 else
-    echo -e "\n${COLOR_CYAN}Activating command in current session...${COLOR_RESET}"
+    echo -e "${YELLOW}⚠ Some dependencies may need attention${NC}"
 fi
 
-# Create alias in current shell immediately
-alias zeetranslator="python $SCRIPT_PATH" 2>/dev/null || true
-
-# Reload bashrc
-source ~/.bashrc 2>/dev/null || true
-
-# Test if command works
-if command -v zeetranslator &> /dev/null || alias zeetranslator &> /dev/null; then
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_GREEN}✓ Command 'zeetranslator' siap digunakan!${COLOR_RESET}"
-    else
-        echo -e "${COLOR_GREEN}✓ Command 'zeetranslator' is ready!${COLOR_RESET}"
-    fi
-else
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_YELLOW}⚠ Command belum aktif. Jalankan: source ~/.bashrc${COLOR_RESET}"
-    else
-        echo -e "${COLOR_YELLOW}⚠ Command not active. Run: source ~/.bashrc${COLOR_RESET}"
-    fi
-fi
+# Reload shell config
+source "$SHELL_CONFIG" 2>/dev/null || true
 
 # Success message
 echo ""
-echo -e "${COLOR_GREEN}╔═══════════════════════════════════════════╗${COLOR_RESET}"
-if [ "$LANG" = "ID" ]; then
-    echo -e "${COLOR_GREEN}║         Setup Termux Berhasil!            ║${COLOR_RESET}"
-else
-    echo -e "${COLOR_GREEN}║         Termux Setup Complete!            ║${COLOR_RESET}"
-fi
-echo -e "${COLOR_GREEN}╚═══════════════════════════════════════════╝${COLOR_RESET}"
-
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_CYAN}Lokasi Instalasi:${COLOR_RESET}"
-    echo "  $INSTALL_DIR"
-    echo ""
-    echo -e "${COLOR_CYAN}Cara Menggunakan:${COLOR_RESET}"
-    echo -e "  ${COLOR_GREEN}zeetranslator${COLOR_RESET}                # Dari mana saja"
-    echo "  cd $INSTALL_DIR"
-    echo "  ./zee_translator.py              # Cara alternatif"
-    echo ""
-    echo -e "${COLOR_CYAN}Shortcut Storage:${COLOR_RESET}"
-    echo "  ~/downloads  →  /storage/emulated/0/Download"
-    echo "  ~/movies     →  /storage/emulated/0/Movies"
-    echo "  ~/dcim       →  /storage/emulated/0/DCIM"
-    echo ""
-    echo -e "${COLOR_CYAN}Contoh Penggunaan:${COLOR_RESET}"
-    echo "  zeetranslator ~/downloads/Subtitles"
-    echo "  zeetranslator ~/movies/MyMovie/"
-    echo ""
-    echo -e "${COLOR_YELLOW}Tips:${COLOR_RESET}"
-    echo "  - Install 'Hacker's Keyboard' untuk kemudahan mengetik"
-    echo "  - Enable Wake Lock di Termux Settings"
-    echo "  - Widget: Long-press home → Widgets → Termux:Widget → ZeeTranslator"
-    echo ""
-    if [ "$STORAGE_CHOICE" = "2" ]; then
-        echo -e "${COLOR_CYAN}Akses dari File Manager:${COLOR_RESET}"
-        echo "  Buka file manager HP → Internal Storage → ZeeTranslator"
-    fi
-else
-    echo -e "\n${COLOR_CYAN}Installation Location:${COLOR_RESET}"
-    echo "  $INSTALL_DIR"
-    echo ""
-    echo -e "${COLOR_CYAN}How to Use:${COLOR_RESET}"
-    echo -e "  ${COLOR_GREEN}zeetranslator${COLOR_RESET}                # From anywhere"
-    echo "  cd $INSTALL_DIR"
-    echo "  ./zee_translator.py              # Alternative way"
-    echo ""
-    echo -e "${COLOR_CYAN}Storage Shortcuts:${COLOR_RESET}"
-    echo "  ~/downloads  →  /storage/emulated/0/Download"
-    echo "  ~/movies     →  /storage/emulated/0/Movies"
-    echo "  ~/dcim       →  /storage/emulated/0/DCIM"
-    echo ""
-    echo -e "${COLOR_CYAN}Usage Examples:${COLOR_RESET}"
-    echo "  zeetranslator ~/downloads/Subtitles"
-    echo "  zeetranslator ~/movies/MyMovie/"
-    echo ""
-    echo -e "${COLOR_YELLOW}Tips:${COLOR_RESET}"
-    echo "  - Install 'Hacker's Keyboard' for easier typing"
-    echo "  - Enable Wake Lock in Termux Settings"
-    echo "  - Widget: Long-press home → Widgets → Termux:Widget → ZeeTranslator"
-    echo ""
-    if [ "$STORAGE_CHOICE" = "2" ]; then
-        echo -e "${COLOR_CYAN}Access from File Manager:${COLOR_RESET}"
-        echo "  Open phone file manager → Internal Storage → ZeeTranslator"
-    fi
-fi
-
+echo -e "${GREEN}╔═══════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║   INSTALLATION COMPLETED SUCCESSFULLY!    ║${NC}"
+echo -e "${GREEN}╚═══════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "${COLOR_MAGENTA}Support This Project${COLOR_RESET}"
-echo -e "${COLOR_CYAN}  PayPal: https://paypal.me/zeewank${COLOR_RESET}"
-echo -e "${COLOR_CYAN}  Trakteer: https://trakteer.id/zeewank/tip${COLOR_RESET}"
+echo -e "${CYAN}Installation Details:${NC}"
+echo -e "  Location: ${YELLOW}$INSTALL_DIR${NC}"
+echo -e "  Command:  ${GREEN}zeetranslator${NC}"
 echo ""
 
-if [ "$LANG" = "ID" ]; then
-    echo -e "${COLOR_GREEN}Siap digunakan! Ketik 'zeetranslator' untuk memulai${COLOR_RESET}"
-    echo -e "${COLOR_CYAN}Atau restart Termux jika command belum aktif${COLOR_RESET}\n"
-else
-    echo -e "${COLOR_GREEN}Ready! Type 'zeetranslator' to start${COLOR_RESET}"
-    echo -e "${COLOR_CYAN}Or restart Termux if command is not active yet${COLOR_RESET}\n"
+if [ "$LOCATION_CHOICE" = "2" ]; then
+    echo -e "${CYAN}Access from Phone File Manager:${NC}"
+    echo -e "  Open ${YELLOW}File Manager${NC}"
+    echo -e "  Go to ${YELLOW}Internal Storage${NC}"
+    echo -e "  Open ${YELLOW}ZeeTranslator${NC} folder"
+    echo ""
 fi
+
+echo -e "${CYAN}Quick Start:${NC}"
+echo ""
+echo -e "  ${GREEN}# Activate command (one time only):${NC}"
+echo -e "  ${YELLOW}source ~/.bashrc${NC}"
+echo ""
+echo -e "  ${GREEN}# Or restart Termux${NC}"
+echo ""
+echo -e "  ${GREEN}# Then run:${NC}"
+echo -e "  ${YELLOW}zeetranslator${NC}"
+echo ""
+echo -e "  ${GREEN}# Or tap the Termux widget on home screen${NC}"
+echo ""
+echo -e "${CYAN}Storage Shortcuts:${NC}"
+echo -e "  ${YELLOW}cd ~/downloads${NC}  # Your Downloads folder"
+echo -e "  ${YELLOW}cd ~/movies${NC}     # Your Movies folder"
+echo -e "  ${YELLOW}cd ~/dcim${NC}       # Your Camera folder"
+echo ""
+echo -e "${CYAN}Alternative (without global command):${NC}"
+echo -e "  ${YELLOW}cd $INSTALL_DIR${NC}"
+echo -e "  ${YELLOW}./zee_translator.py${NC}"
+echo ""
+echo -e "${BLUE}Documentation:${NC}"
+echo -e "  README:      ${YELLOW}cat $INSTALL_DIR/README.md${NC}"
+echo -e "  Quick Start: ${YELLOW}cat $INSTALL_DIR/QUICKSTART.md${NC}"
+echo -e "  Full Guide:  ${YELLOW}cat $INSTALL_DIR/GUIDE.md${NC}"
+echo -e "  Android FAQ: ${YELLOW}cat $INSTALL_DIR/ANDROID_STORAGE_GUIDE.md${NC}"
+echo ""
+echo -e "${MAGENTA}Uninstall:${NC}"
+echo -e "  ${YELLOW}cd $INSTALL_DIR && ./uninstall.sh${NC}"
+echo ""
+echo -e "${GREEN}Happy translating! 🎬${NC}"
+echo ""

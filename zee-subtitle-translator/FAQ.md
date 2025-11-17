@@ -2,7 +2,32 @@
 
 Common questions and answers about Zee Subtitle Translator.
 
-## 📥 Installation & Setup
+## 🔥 Installation & Setup
+
+### Q: Do I need to download the project manually?
+
+**A:** **No!** Just run one command and everything downloads automatically:
+
+**Linux/macOS:**
+```bash
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh | bash
+```
+
+**Windows:**
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/install_windows.bat" -OutFile "$env:TEMP\zee-install.bat"; & "$env:TEMP\zee-install.bat"
+```
+
+**Android:**
+```bash
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/setup_termux.sh | bash
+```
+
+No git required! No manual downloads!
+
+### Q: Do I need git installed?
+
+**A:** **No!** The new bootstrap installer downloads everything directly from GitHub using `curl` or `wget`. Git is completely optional.
 
 ### Q: Do I need to pay for this?
 
@@ -10,7 +35,12 @@ Common questions and answers about Zee Subtitle Translator.
 
 ### Q: Which Python version do I need?
 
-**A:** Python 3.7 or higher. Check with:
+**A:** Python 3.7 or higher. The installer will:
+- **Check if Python exists**
+- **Auto-install Python if missing** (Windows)
+- **Guide you to install Python** (Linux/macOS/Android)
+
+Check with:
 ```bash
 python --version
 # or
@@ -19,18 +49,116 @@ python3 --version
 
 ### Q: Can I use this without internet?
 
-**A:** No, translation requires internet connection to access Google Translate or DeepL API.
+**A:** No, you need internet for:
+1. Initial installation (downloads project and dependencies)
+2. Translation (accesses Google Translate or DeepL API)
 
-### Q: Do I need to install Python on Windows?
+### Q: How long does installation take?
 
-**A:** Yes. Download from [python.org](https://python.org). Make sure to check "Add Python to PATH" during installation.
+**A:** 
+- **Good connection:** 2-3 minutes
+- **Slow connection:** 3-5 minutes
+- **First time (includes Python):** 5-10 minutes (Windows only)
+
+### Q: What does the installer do exactly?
+
+**A:**
+1. ✅ Checks for Python (installs if needed on Windows)
+2. ✅ Downloads project ZIP from GitHub
+3. ✅ Extracts all files
+4. ✅ Installs Python dependencies (srt, deep-translator, etc.)
+5. ✅ Sets up global `zeetranslator` command
+6. ✅ Creates shortcuts (Android only)
+7. ✅ Creates Termux widget (Android only)
 
 ### Q: The installer fails. What should I do?
 
 **A:** 
-1. Check internet connection
-2. Try manual installation: `pip install srt deep-translator tqdm chardet pysubs2`
-3. Run as administrator (Windows) or with `sudo` (Linux)
+
+**Linux/macOS:**
+```bash
+# Try wget if curl fails:
+wget -qO- https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh | bash
+
+# Or download manually:
+curl -O https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh
+chmod +x installer.sh
+./installer.sh
+```
+
+**Windows:**
+1. Download [install_windows.bat](https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/install_windows.bat)
+2. Right-click → Run as Administrator
+3. If still fails, install Python manually first from [python.org](https://python.org)
+
+**Android:**
+```bash
+# Update Termux first
+pkg update -y && pkg upgrade -y
+
+# Install required packages
+pkg install -y python curl unzip
+
+# Try again
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/setup_termux.sh | bash
+```
+
+### Q: "curl: command not found" error
+
+**A:**
+
+**Linux:**
+```bash
+# Ubuntu/Debian
+sudo apt install curl
+
+# Arch
+sudo pacman -S curl
+
+# Or use wget instead:
+wget -qO- [URL] | bash
+```
+
+**Windows:** curl is built-in on Windows 10+. If missing, use PowerShell method.
+
+**Android:**
+```bash
+pkg install curl
+```
+
+### Q: Can I install to a different location?
+
+**A:**
+
+**Linux/macOS:** 
+By default installs to `~/zee-subtitle-translator`. To change, edit the downloaded bootstrap script before running.
+
+**Windows:** 
+By default installs to `%USERPROFILE%\zee-subtitle-translator`. To change, edit the downloaded bootstrap script.
+
+**Android:** 
+The installer **asks you** during setup:
+- Option 1: Termux Home (`~/zee-subtitle-translator`)
+- Option 2: Shared Storage (`/storage/emulated/0/ZeeTranslator`) ⭐ **Recommended**
+
+### Q: Do I still need the old `git clone` method?
+
+**A:** No! The old method still works but is **not recommended**:
+
+```bash
+# Old method (not recommended):
+git clone https://github.com/zeewank/zee-subtitle-translator.git
+cd zee-subtitle-translator
+./installer.sh
+
+# New method (recommended):
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh | bash
+```
+
+The new method is:
+- ✅ Easier (one command)
+- ✅ Faster (no git needed)
+- ✅ Automatic (downloads everything)
 
 ---
 
@@ -54,7 +182,7 @@ python3 --version
 
 **A:**
 - **Safe** - For important content, complex formatting
-- **Standard** - Best for most cases (recommended)
+- **Standard** - Best for most cases (recommended) ⭐
 - **Aggressive** - Only for large batches with good connection
 
 ### Q: Can I translate to multiple languages at once?
@@ -131,7 +259,7 @@ python3 --version
 
 ---
 
-## 🌍 Translation Quality
+## 🌐 Translation Quality
 
 ### Q: Which is better: Google or DeepL?
 
@@ -173,18 +301,41 @@ python3 --version
 
 ### Q: Can I use custom dictionaries?
 
-**A:** Not yet, but it's planned! Track progress:
-- [Feature Request #XX](https://github.com/zeewank/zee-subtitle-translator/issues)
+**A:** Not yet, but it's planned! Track progress on GitHub Issues.
 
 ---
 
 ## 🛠️ Troubleshooting
+
+### Q: "Command not found: zeetranslator"
+
+**A:**
+
+**Linux/macOS/Android:**
+```bash
+source ~/.bashrc  # or source ~/.zshrc on macOS
+```
+
+**Windows:**
+Close and reopen Command Prompt/PowerShell.
+
+**Or:** Open a new terminal window.
+
+**Still not working?**
+```bash
+# Use traditional method:
+cd ~/zee-subtitle-translator  # or your install location
+./zee_translator.py
+# or
+python zee_translator.py
+```
 
 ### Q: "Module not found" error
 
 **A:**
 ```bash
 # Reinstall dependencies
+cd ~/zee-subtitle-translator  # or your install location
 pip install --force-reinstall -r requirements.txt
 
 # Or install individually:
@@ -195,7 +346,7 @@ pip install srt deep-translator tqdm chardet pysubs2
 
 **A:**
 
-**Linux/macOS:**
+**Linux/macOS/Android:**
 ```bash
 chmod +x zee_translator.py
 ```
@@ -254,38 +405,50 @@ export TERM=xterm-256color
 **Q: "Python is not recognized"**
 
 **A:** Python not in PATH.
-1. Reinstall Python
-2. Check "Add Python to PATH"
-3. Or add manually to System Variables
+1. The installer should auto-install Python
+2. If manual install needed, check "Add Python to PATH"
+3. Restart Command Prompt after installation
 
 **Q: Can I use PowerShell?**
 
-**A:** Yes! PowerShell supports all features and has better color support than Command Prompt.
+**A:** Yes! PowerShell supports all features and has better color support than Command Prompt. **Recommended!**
 
 ### Android (Termux)
 
 **Q: Which Termux version should I use?**
 
-**A:** Install from **F-Droid** or **GitHub**, NOT Google Play Store (outdated and broken).
+**A:** Install from **F-Droid** or **GitHub**, **NOT** Google Play Store (outdated and broken).
+
+**F-Droid:** https://f-droid.org/packages/com.termux/  
+**GitHub:** https://github.com/termux/termux-app/releases
 
 **Q: "Cannot access storage"**
 
 **A:**
 ```bash
 termux-setup-storage
-# Allow permission in popup
+# Click "Allow" in popup
 ```
+
+**Q: Where should I install on Android?**
+
+**A:** The installer asks you:
+- **Option 1:** Termux Home (`~/zee-subtitle-translator`)
+  - Faster
+  - Not accessible from file manager
+  - Deleted if Termux uninstalled
+- **Option 2:** Shared Storage (`/storage/emulated/0/ZeeTranslator`) ⭐ **Recommended**
+  - Accessible from phone file manager
+  - Persists after Termux uninstall
+  - Easy to backup/share
 
 **Q: How to access phone files?**
 
-**A:**
+**A:** The installer creates shortcuts:
 ```bash
-# Create shortcuts
-ln -s /storage/emulated/0/Download ~/downloads
-ln -s /storage/emulated/0/Movies ~/movies
-
-# Then:
-cd ~/downloads
+cd ~/downloads  # Your Downloads folder
+cd ~/movies     # Your Movies folder
+cd ~/dcim       # Your Camera folder
 ```
 
 **Q: App closes during long translation**
@@ -302,11 +465,10 @@ cd ~/downloads
 
 **A:** macOS uses `python3`:
 ```bash
-# Use python3 instead:
-python3 zee_translator.py
+# Check version:
+python3 --version
 
-# Or create alias:
-alias python=python3
+# The installer handles this automatically
 ```
 
 **Q: "Operation not permitted"**
@@ -327,6 +489,7 @@ alias python=python3
 - Only subtitle text is sent to translation API
 - No personal data collected
 - No tracking or analytics
+- Open source - you can review the code
 
 ### Q: Can Google/DeepL see my subtitles?
 
@@ -336,12 +499,12 @@ alias python=python3
 
 ### Q: Do you collect any data?
 
-**A:** No. Zero data collection. 100% privacy.
+**A:** **No.** Zero data collection. 100% privacy.
 
 ### Q: Can I use this commercially?
 
 **A:** Yes! MIT License allows commercial use. But note:
-- Google Translate ToS may have limits
+- Google Translate ToS may have limits for heavy commercial use
 - DeepL has different pricing for commercial use
 
 ---
@@ -365,10 +528,6 @@ alias python=python3
 
 See [DeepL Pricing](https://www.deepl.com/pro-api)
 
-### Q: Can I donate?
-
-**A:** Not currently accepting donations. Star the repo on GitHub instead! ⭐
-
 ---
 
 ## 🚀 Feature Requests
@@ -382,12 +541,11 @@ See [DeepL Pricing](https://www.deepl.com/pro-api)
 ### Q: Most requested features?
 
 **A:**
-1. ✅ Multiple folder support (Added in v6.1!)
-2. 🔄 GUI version (Planned)
-3. 🔄 Translation memory/cache (Planned)
-4. 🔄 Custom dictionaries (Planned)
-5. 🔄 More subtitle formats (Under consideration)
-
+1. ✅ Multiple folder support (Added!)
+2. ✅ One-line installer (Added!)
+3. 🔄 GUI version (Planned)
+4. 🔄 Translation memory/cache (Planned)
+5. 🔄 Custom dictionaries (Planned)
 
 ---
 
@@ -396,8 +554,9 @@ See [DeepL Pricing](https://www.deepl.com/pro-api)
 ### Still have questions?
 
 1. **Read documentation:**
-   - [USAGE.md](USAGE.md) - Detailed guide
-   - [QUICKSTART.md](QUICKSTART.md) - Quick tutorial
+   - [QUICKSTART.md](QUICKSTART.md) - 5-minute tutorial
+   - [GUIDE.md](GUIDE.md) - Detailed guide
+   - [README.md](README.md) - Overview
 
 2. **Search existing issues:**
    - [GitHub Issues](https://github.com/zeewank/zee-subtitle-translator/issues)

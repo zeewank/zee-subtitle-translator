@@ -22,100 +22,76 @@ A command-line tool for batch translating subtitle files with support for multip
 
 ## Requirements
 
-- Python 3.7 or higher
-- pip package manager
-- Internet connection for translation APIs
+- Python 3.7 or higher (auto-installed if not present)
+- Internet connection for downloading and translation
 
-## Quick Install
+**No manual downloads needed!** Just run one command.
+
+## ⚡ Quick Install (One-Line)
 
 ### Linux / macOS
 
+**Easiest way** - Copy and paste this into your terminal:
+
 ```bash
-git clone https://github.com/zeewank/zee-subtitle-translator.git
-cd zee-subtitle-translator
-chmod +x installer.sh
-./installer.sh
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh | bash
 ```
 
-After installation:
-```bash
-zeetranslator
-```
+Or with wget:
 
-**Note:** If the command doesn't work immediately, run:
 ```bash
-source ~/.bashrc  # or source ~/.zshrc on macOS
+wget -qO- https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh | bash
 ```
-Or simply open a new terminal window.
 
 ### Windows
 
-**Easy Installation:**
+**Easiest way** - Open PowerShell (right-click Start → Windows PowerShell) and paste:
 
-1. Download the latest release from [GitHub Releases](https://github.com/zeewank/zee-subtitle-translator/releases)
-2. Extract the ZIP file to any location (example: `C:\ZeeTranslator\`)
-3. Double-click `install_windows.bat`
-4. Wait for installation to complete
-
-**Manual Installation:**
-
-```cmd
-git clone https://github.com/zeewank/zee-subtitle-translator.git
-cd zee-subtitle-translator
-install_windows.bat
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/install_windows.bat" -OutFile "$env:TEMP\zee-install.bat"; & "$env:TEMP\zee-install.bat"
 ```
 
-After installation:
-```cmd
-zeetranslator
-```
+Or **Command Prompt**:
 
-**Note:** Restart Command Prompt if command not found.
+```cmd
+curl -o "%TEMP%\zee-install.bat" https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/install_windows.bat && "%TEMP%\zee-install.bat"
+```
 
 ### Android (Termux)
 
-**Important:** Install Termux from [F-Droid](https://f-droid.org/packages/com.termux/) or [GitHub](https://github.com/termux/termux-app/releases), not Google Play Store.
+**Important:** Install Termux from [F-Droid](https://f-droid.org/packages/com.termux/) or [GitHub](https://github.com/termux/termux-app/releases), **NOT** Google Play Store.
+
+**Easiest way** - Open Termux and paste:
 
 ```bash
-pkg update -y && pkg upgrade -y
-pkg install -y git
-git clone https://github.com/zeewank/zee-subtitle-translator.git
-cd zee-subtitle-translator
-chmod +x setup_termux.sh
-./setup_termux.sh
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/setup_termux.sh | bash
 ```
 
-The setup script will:
-- Install Python and dependencies
-- Configure storage access
-- **Ask where to install** (Termux home or Shared storage)
-- Create shortcuts to Downloads, Movies, DCIM
-- Set up global command
-- Create Termux widget shortcut
+## What Happens During Installation?
 
-**Recommended:** Choose Option 2 (Shared Storage) during setup. This installs to `Internal Storage/ZeeTranslator/` which is:
-- Accessible from phone file manager
-- Persists after uninstalling Termux
-- Easy to backup and share
+The auto-installer will:
 
-After setup:
-```bash
-zeetranslator
-```
+1. ✅ Check/install Python (if needed)
+2. ✅ Download project from GitHub
+3. ✅ Extract all files
+4. ✅ Install Python dependencies
+5. ✅ Set up global `zeetranslator` command
+6. ✅ Create shortcuts (Android only)
+7. ✅ Create Termux widget (Android only)
 
-**Note:** If command not found, run `source ~/.bashrc` or restart Termux.
+**Total time:** 2-5 minutes depending on your connection.
 
-**Android Storage Guide:**
-For detailed explanation about Termux storage and why "permission denied" occurs, see [ANDROID_STORAGE_GUIDE.md](ANDROID_STORAGE_GUIDE.md).
+**No git required!** Everything downloads automatically.
 
 ## Usage
 
-### Basic Usage
+After installation, simply run:
 
-Run the program from any directory:
 ```bash
 zeetranslator
 ```
+
+**That's it!** The program will guide you through the rest.
 
 ### With Specific Path
 
@@ -130,13 +106,42 @@ zeetranslator "C:\Users\YourName\Videos\Subtitles"
 zeetranslator ~/downloads/Subtitles/
 ```
 
-### Traditional Method
+### If Global Command Doesn't Work
 
-If global command doesn't work:
+**Linux/macOS/Android:**
 ```bash
-python zee_translator.py
-# or
-./zee_translator.py
+source ~/.bashrc  # or source ~/.zshrc on macOS
+# Then try again: zeetranslator
+```
+
+**Windows:**
+Restart Command Prompt or PowerShell, then try again.
+
+## Manual Installation (Alternative)
+
+If the one-line installer doesn't work, you can install manually:
+
+### Linux / macOS / Android
+
+```bash
+# 1. Download bootstrap script
+curl -O https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh
+
+# 2. Make executable
+chmod +x installer.sh
+
+# 3. Run
+./installer.sh
+```
+
+### Windows
+
+```cmd
+REM 1. Download bootstrap script
+curl -O https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/install_windows.bat
+
+REM 2. Run
+install_windows.bat
 ```
 
 ## Translation Modes
@@ -208,6 +213,36 @@ subtitle.ass → subtitle.id.ass
 
 ## Troubleshooting
 
+### Installation Failed
+
+**Linux/macOS:**
+```bash
+# If curl fails, try wget:
+wget -qO- https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh | bash
+
+# Or download manually:
+curl -O https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh
+chmod +x installer.sh
+./installer.sh
+```
+
+**Windows:**
+```powershell
+# If PowerShell fails, download manually:
+# 1. Go to: https://github.com/zeewank/zee-subtitle-translator/releases
+# 2. Download install_windows.bat
+# 3. Double-click to run
+```
+
+**Android:**
+```bash
+# Update Termux first:
+pkg update -y && pkg upgrade -y
+
+# Then try again:
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/setup_termux.sh | bash
+```
+
 ### Command Not Found
 
 **Linux/macOS:**
@@ -216,10 +251,7 @@ source ~/.bashrc  # or ~/.zshrc
 ```
 
 **Windows:**
-Restart Command Prompt or use:
-```cmd
-python zee_translator.py
-```
+Restart Command Prompt
 
 **Android:**
 ```bash
@@ -255,9 +287,14 @@ To completely remove Zee Subtitle Translator:
 
 **Linux/macOS/Android:**
 ```bash
-cd zee-subtitle-translator  # or your install location
-chmod +x uninstall.sh
+cd ~/zee-subtitle-translator  # or your install location
 ./uninstall.sh
+```
+
+**Windows:**
+```cmd
+cd %USERPROFILE%\zee-subtitle-translator
+uninstall.bat
 ```
 
 The uninstaller will:
@@ -267,14 +304,14 @@ The uninstaller will:
 - Remove configuration files
 - Create backup of shell config
 
-**Note:** The uninstaller does NOT delete:
-- Project folder (delete manually if desired: `rm -rf zee-subtitle-translator`)
-- Python packages (uninstall manually if desired: `pip uninstall srt deep-translator tqdm chardet pysubs2`)
+**Note:** To also delete the project folder:
+```bash
+# Linux/macOS/Android
+rm -rf ~/zee-subtitle-translator
 
-**Windows:**
-1. Delete `%USERPROFILE%\AppData\Local\Microsoft\WindowsApps\zeetranslator.bat`
-2. Delete project folder manually
-3. (Optional) Uninstall Python packages: `pip uninstall srt deep-translator tqdm chardet pysubs2`
+# Windows
+rmdir /s "%USERPROFILE%\zee-subtitle-translator"
+```
 
 ## Documentation
 
@@ -284,7 +321,30 @@ The uninstaller will:
 - [Indonesian Tutorial](Complete%20Install%20Tutorial%20(Bahasa%20Indonesia).md) - Panduan lengkap
 - [Android Storage Guide](ANDROID_STORAGE_GUIDE.md) - Termux storage explanation
 
+## Platform-Specific Notes
 
+### Linux
+- Tested on Ubuntu, Debian, Arch, Fedora
+- Requires `curl` or `wget` and `unzip`
+- Global command works in bash and zsh
+
+### macOS
+- Works on Intel and Apple Silicon
+- Requires Homebrew for easy Python installation
+- Use `python3` command
+
+### Windows
+- Windows 10/11 recommended
+- PowerShell gives best experience
+- Command Prompt also supported
+- Python auto-installs if missing
+
+### Android (Termux)
+- **Must use F-Droid or GitHub version**
+- Google Play Store version is broken
+- Install to Shared Storage for file manager access
+- Widget support for quick launch
+- Storage shortcuts created automatically
 
 ## Support
 

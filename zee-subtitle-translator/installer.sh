@@ -1,248 +1,179 @@
 #!/bin/bash
 # ================================================================
-# Zee Subtitle Translator - Automatic Installer (FIXED)
-# Version 1.0 - Now with proper dependency installation!
+# Zee Subtitle Translator - Bootstrap Installer
+# One-line auto-installer for Linux/macOS
+# No git required - downloads directly from GitHub
 # ================================================================
 
 set -e
 
-COLOR_RESET='\033[0m'
-COLOR_GREEN='\033[92m'
-COLOR_YELLOW='\033[93m'
-COLOR_RED='\033[91m'
-COLOR_CYAN='\033[96m'
-COLOR_MAGENTA='\033[95m'
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
 
-# Language Selection
-echo -e "${COLOR_CYAN}"
+# Configuration
+REPO_URL="https://github.com/zeewank/zee-subtitle-translator"
+ZIP_URL="https://github.com/zeewank/zee-subtitle-translator/archive/refs/heads/main.zip"
+INSTALL_DIR="$HOME/zee-subtitle-translator"
+TEMP_DIR="/tmp/zee-installer-$$"
+
+echo -e "${CYAN}"
 cat << "EOF"
 ╔═══════════════════════════════════════════╗
-║    ZEE SUBTITLE TRANSLATOR INSTALLER      ║
-║              Version 1.0                  ║
+║   ZEE SUBTITLE TRANSLATOR - INSTALLER     ║
+║        Auto-Download & Setup              ║
 ╚═══════════════════════════════════════════╝
 EOF
-echo -e "${COLOR_RESET}"
+echo -e "${NC}"
 
-echo -e "${COLOR_YELLOW}Select Language / Pilih Bahasa:${COLOR_RESET}"
-echo "  1) English"
-echo "  2) Bahasa Indonesia"
-read -p "Choice / Pilihan [1-2]: " LANG_CHOICE
+echo -e "${GREEN}✓ Starting automatic installation...${NC}"
+echo ""
 
-if [ "$LANG_CHOICE" = "2" ]; then
-    LANG="ID"
+# Check for download tool
+DOWNLOAD_CMD=""
+if command -v curl &> /dev/null; then
+    DOWNLOAD_CMD="curl -L -o"
+    echo -e "${GREEN}✓ Using curl for download${NC}"
+elif command -v wget &> /dev/null; then
+    DOWNLOAD_CMD="wget -O"
+    echo -e "${GREEN}✓ Using wget for download${NC}"
 else
-    LANG="EN"
+    echo -e "${RED}[ERROR] Neither curl nor wget found!${NC}"
+    echo ""
+    echo "Please install one of them:"
+    echo "  Ubuntu/Debian: sudo apt install curl"
+    echo "  macOS:         brew install curl"
+    echo ""
+    exit 1
 fi
 
-# Language functions
-msg_checking_python() {
-    if [ "$LANG" = "ID" ]; then
-        echo "[1/5] Memeriksa instalasi Python..."
-    else
-        echo "[1/5] Checking Python installation..."
-    fi
-}
-
-msg_python_not_found() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_RED}✗ Python 3 tidak terinstal!${COLOR_RESET}"
-        echo "Silakan instal Python 3.7 atau lebih tinggi dari https://python.org"
-    else
-        echo -e "${COLOR_RED}✗ Python 3 is not installed!${COLOR_RESET}"
-        echo "Please install Python 3.7 or higher from https://python.org"
-    fi
-}
-
-msg_python_detected() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_GREEN}✓ Python terdeteksi${COLOR_RESET}"
-    else
-        echo -e "${COLOR_GREEN}✓ Python detected${COLOR_RESET}"
-    fi
-}
-
-msg_checking_pip() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "\n${COLOR_YELLOW}[2/5] Memeriksa instalasi pip...${COLOR_RESET}"
-    else
-        echo -e "\n${COLOR_YELLOW}[2/5] Checking pip installation...${COLOR_RESET}"
-    fi
-}
-
-msg_pip_ready() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_GREEN}✓ pip siap digunakan${COLOR_RESET}"
-    else
-        echo -e "${COLOR_GREEN}✓ pip is ready${COLOR_RESET}"
-    fi
-}
-
-msg_installing() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "\n${COLOR_YELLOW}[3/5] Menginstal paket yang diperlukan...${COLOR_RESET}"
-        echo "Ini mungkin memakan waktu beberapa menit..."
-    else
-        echo -e "\n${COLOR_YELLOW}[3/5] Installing required packages...${COLOR_RESET}"
-        echo "This may take a few minutes..."
-    fi
-}
-
-msg_success() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_GREEN}✓ Semua dependensi berhasil diinstal${COLOR_RESET}"
-    else
-        echo -e "${COLOR_GREEN}✓ All dependencies installed successfully${COLOR_RESET}"
-    fi
-}
-
-msg_failed() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_RED}✗ Gagal menginstal beberapa dependensi${COLOR_RESET}"
-    else
-        echo -e "${COLOR_RED}✗ Failed to install some dependencies${COLOR_RESET}"
-    fi
-}
-
-msg_setup_permissions() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "\n${COLOR_YELLOW}[4/5] Mengatur izin executable...${COLOR_RESET}"
-    else
-        echo -e "\n${COLOR_YELLOW}[4/5] Setting up executable permissions...${COLOR_RESET}"
-    fi
-}
-
-msg_setup_global() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "\n${COLOR_YELLOW}[5/5] Mengatur command global 'zeetranslator'...${COLOR_RESET}"
-    else
-        echo -e "\n${COLOR_YELLOW}[5/5] Setting up global 'zeetranslator' command...${COLOR_RESET}"
-    fi
-}
-
-msg_setup_complete() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_GREEN}✓ Pengaturan selesai${COLOR_RESET}"
-    else
-        echo -e "${COLOR_GREEN}✓ Setup complete${COLOR_RESET}"
-    fi
-}
-
-msg_installation_complete() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "\n${COLOR_GREEN}═══════════════════════════════════════════${COLOR_RESET}"
-        echo -e "${COLOR_GREEN}    Instalasi berhasil diselesaikan!${COLOR_RESET}"
-        echo -e "${COLOR_GREEN}═══════════════════════════════════════════${COLOR_RESET}"
-    else
-        echo -e "\n${COLOR_GREEN}═══════════════════════════════════════════${COLOR_RESET}"
-        echo -e "${COLOR_GREEN}    Installation completed successfully!${COLOR_RESET}"
-        echo -e "${COLOR_GREEN}═══════════════════════════════════════════${COLOR_RESET}"
-    fi
-}
-
-msg_quick_start() {
-    if [ "$LANG" = "ID" ]; then
-        echo -e "\n${COLOR_CYAN}Mulai Cepat:${COLOR_RESET}"
-        echo -e "  ${COLOR_GREEN}zeetranslator${COLOR_RESET}                # Jalankan dari mana saja"
-        echo "  ./zee_translator.py              # Cara alternatif"
-        echo "  python3 zee_translator.py        # Cara manual"
-        echo ""
-        echo -e "${COLOR_CYAN}Contoh Penggunaan:${COLOR_RESET}"
-        echo "  zeetranslator ~/Videos/Subtitles # Translate folder tertentu"
-        echo ""
-        echo -e "${COLOR_CYAN}Untuk informasi lebih lanjut:${COLOR_RESET}"
-        echo "  Lihat README.md untuk panduan lengkap"
-    else
-        echo -e "\n${COLOR_CYAN}Quick Start:${COLOR_RESET}"
-        echo -e "  ${COLOR_GREEN}zeetranslator${COLOR_RESET}                # Run from anywhere!"
-        echo "  ./zee_translator.py              # Alternative way"
-        echo "  python3 zee_translator.py        # Manual way"
-        echo ""
-        echo -e "${COLOR_CYAN}Usage Examples:${COLOR_RESET}"
-        echo "  zeetranslator ~/Videos/Subtitles # Translate specific folder"
-        echo ""
-        echo -e "${COLOR_CYAN}For more information:${COLOR_RESET}"
-        echo "  See README.md for detailed usage"
-    fi
-    echo "  Visit: https://github.com/zeewank/zee-subtitle-translator"
-}
-
-msg_support() {
+# Check for unzip
+if ! command -v unzip &> /dev/null; then
+    echo -e "${RED}[ERROR] unzip not found!${NC}"
     echo ""
-    echo -e "${COLOR_MAGENTA}Support This Project${COLOR_RESET}"
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_YELLOW}Jika tool ini bermanfaat, pertimbangkan untuk berdonasi${COLOR_RESET}"
-    else
-        echo -e "${COLOR_YELLOW}If this tool is helpful, consider donating${COLOR_RESET}"
-    fi
+    echo "Please install unzip:"
+    echo "  Ubuntu/Debian: sudo apt install unzip"
+    echo "  macOS:         brew install unzip"
     echo ""
-    echo -e "${COLOR_CYAN}  PayPal: https://paypal.me/zeewank${COLOR_RESET}"
-    echo -e "${COLOR_CYAN}  Trakteer: https://trakteer.id/zeewank/tip${COLOR_RESET}"
-    echo ""
-}
+    exit 1
+fi
 
-# ============================================================
-# START INSTALLATION
-# ============================================================
-
-# [1/5] Check Python
-msg_checking_python
+# Check Python
 if ! command -v python3 &> /dev/null; then
-    msg_python_not_found
+    echo -e "${RED}[ERROR] Python 3 not found!${NC}"
+    echo ""
+    echo "Please install Python 3.7+:"
+    echo "  Ubuntu/Debian: sudo apt install python3 python3-pip"
+    echo "  macOS:         brew install python3"
+    echo ""
     exit 1
 fi
 
-msg_python_detected
-python3 --version
-echo
+echo -e "${GREEN}✓ Python 3 found${NC}"
 
-# [2/5] Check pip
-msg_checking_pip
-python3 -m pip --version &> /dev/null
-if [ $? -ne 0 ]; then
-    if [ "$LANG" = "ID" ]; then
-        echo "[!] pip tidak ditemukan, menginstal..."
-    else
-        echo "[!] pip not found, installing..."
+# Check if already installed
+if [ -d "$INSTALL_DIR" ]; then
+    echo ""
+    echo -e "${YELLOW}⚠ Zee Translator already installed at: $INSTALL_DIR${NC}"
+    echo ""
+    read -p "Reinstall? (y/n): " REINSTALL
+    if [ "$REINSTALL" != "y" ] && [ "$REINSTALL" != "Y" ]; then
+        echo -e "${YELLOW}Installation cancelled.${NC}"
+        exit 0
     fi
-    python3 -m ensurepip --upgrade
+    echo ""
+    echo -e "${YELLOW}Removing old installation...${NC}"
+    rm -rf "$INSTALL_DIR"
 fi
-msg_pip_ready
 
-# Upgrade pip
-if [ "$LANG" = "ID" ]; then
-    echo "Memperbarui pip..."
+# Create temp directory
+mkdir -p "$TEMP_DIR"
+cd "$TEMP_DIR"
+
+# Download project
+echo ""
+echo -e "${CYAN}[1/5] Downloading project from GitHub...${NC}"
+echo -e "${BLUE}URL: $ZIP_URL${NC}"
+echo ""
+
+if [ "$DOWNLOAD_CMD" = "curl -L -o" ]; then
+    curl -L -o zee-translator.zip "$ZIP_URL" --progress-bar || {
+        echo -e "${RED}[ERROR] Download failed!${NC}"
+        echo "Please check your internet connection."
+        rm -rf "$TEMP_DIR"
+        exit 1
+    }
 else
-    echo "Upgrading pip..."
+    wget -O zee-translator.zip "$ZIP_URL" --show-progress || {
+        echo -e "${RED}[ERROR] Download failed!${NC}"
+        echo "Please check your internet connection."
+        rm -rf "$TEMP_DIR"
+        exit 1
+    }
 fi
-python3 -m pip install --upgrade pip --quiet
-echo
 
-# [3/5] Install dependencies - THIS WAS MISSING!
-msg_installing
-python3 -m pip install -r requirements.txt
+echo ""
+echo -e "${GREEN}✓ Download complete!${NC}"
 
-if [ $? -eq 0 ]; then
-    echo
-    msg_success
-else
-    echo
-    msg_failed
+# Extract
+echo ""
+echo -e "${CYAN}[2/5] Extracting files...${NC}"
+unzip -q zee-translator.zip || {
+    echo -e "${RED}[ERROR] Extraction failed!${NC}"
+    rm -rf "$TEMP_DIR"
+    exit 1
+}
+
+# Move to install directory
+EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "zee-subtitle-translator-*" | head -n 1)
+if [ -z "$EXTRACTED_DIR" ]; then
+    echo -e "${RED}[ERROR] Could not find extracted directory!${NC}"
+    rm -rf "$TEMP_DIR"
     exit 1
 fi
 
-# [4/5] Setup permissions
-msg_setup_permissions
-chmod +x zee_translator.py
-msg_setup_complete
+mv "$EXTRACTED_DIR" "$INSTALL_DIR"
+echo -e "${GREEN}✓ Files extracted to: $INSTALL_DIR${NC}"
 
-# [5/5] Setup global command
-msg_setup_global
+# Clean up temp
+rm -rf "$TEMP_DIR"
 
-# Get absolute path to script
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCRIPT_PATH="$SCRIPT_DIR/zee_translator.py"
+# Install dependencies
+cd "$INSTALL_DIR"
 
-# Detect shell and config file
+echo ""
+echo -e "${CYAN}[3/5] Installing Python dependencies...${NC}"
+echo "This may take 1-2 minutes..."
+echo ""
+
+python3 -m pip install --upgrade pip --quiet --disable-pip-version-check 2>/dev/null || true
+
+python3 -m pip install --quiet --disable-pip-version-check -r requirements.txt || {
+    echo -e "${RED}[ERROR] Failed to install dependencies!${NC}"
+    echo ""
+    echo "Please try manually:"
+    echo "  cd $INSTALL_DIR"
+    echo "  pip install -r requirements.txt"
+    exit 1
+}
+
+echo -e "${GREEN}✓ Dependencies installed!${NC}"
+
+# Make scripts executable
+chmod +x zee_translator.py 2>/dev/null || true
+chmod +x installer.sh 2>/dev/null || true
+chmod +x uninstall.sh 2>/dev/null || true
+
+# Setup global command
+echo ""
+echo -e "${CYAN}[4/5] Setting up global command...${NC}"
+
+# Detect shell
 if [ -n "$BASH_VERSION" ]; then
     SHELL_CONFIG="$HOME/.bashrc"
 elif [ -n "$ZSH_VERSION" ]; then
@@ -251,53 +182,67 @@ else
     SHELL_CONFIG="$HOME/.profile"
 fi
 
-# Check if alias already exists
-if grep -q "alias zeetranslator=" "$SHELL_CONFIG" 2>/dev/null; then
-    if [ "$LANG" = "ID" ]; then
-        echo "[!] Alias 'zeetranslator' sudah ada, melewati..."
-    else
-        echo "[!] Alias 'zeetranslator' already exists, skipping..."
-    fi
+# Remove old alias if exists
+sed -i.bak '/# Zee Subtitle Translator/,/alias zeetranslator=/d' "$SHELL_CONFIG" 2>/dev/null || \
+sed -i '' '/# Zee Subtitle Translator/,/alias zeetranslator=/d' "$SHELL_CONFIG" 2>/dev/null || true
+
+# Add new alias
+cat >> "$SHELL_CONFIG" << EOL
+
+# Zee Subtitle Translator
+alias zeetranslator='python3 $INSTALL_DIR/zee_translator.py'
+EOL
+
+echo -e "${GREEN}✓ Global command configured!${NC}"
+
+# Test installation
+echo ""
+echo -e "${CYAN}[5/5] Testing installation...${NC}"
+
+if python3 -c "import srt, deep_translator, tqdm, chardet, pysubs2" 2>/dev/null; then
+    echo -e "${GREEN}✓ All dependencies working!${NC}"
 else
-    # Add alias to shell config
-    echo "" >> "$SHELL_CONFIG"
-    echo "# Zee Subtitle Translator" >> "$SHELL_CONFIG"
-    echo "alias zeetranslator='python3 $SCRIPT_PATH'" >> "$SHELL_CONFIG"
-    
-    if [ "$LANG" = "ID" ]; then
-        echo -e "${COLOR_GREEN}✓ Command global 'zeetranslator' berhasil ditambahkan!${COLOR_RESET}"
-        echo -e "${COLOR_YELLOW}⚠️  Jalankan: source $SHELL_CONFIG${COLOR_RESET}"
-        echo -e "${COLOR_YELLOW}   Atau buka terminal baru untuk mengaktifkan command${COLOR_RESET}"
-    else
-        echo -e "${COLOR_GREEN}✓ Global 'zeetranslator' command added successfully!${COLOR_RESET}"
-        echo -e "${COLOR_YELLOW}⚠️  Run: source $SHELL_CONFIG${COLOR_RESET}"
-        echo -e "${COLOR_YELLOW}   Or open a new terminal to activate the command${COLOR_RESET}"
-    fi
+    echo -e "${YELLOW}⚠ Some dependencies may need attention${NC}"
 fi
 
-msg_installation_complete
-msg_quick_start
-msg_support
-
-# Auto-reload shell config
-if [ "$LANG" = "ID" ]; then
-    echo -e "\n${COLOR_CYAN}Mengaktifkan command global...${COLOR_RESET}"
-else
-    echo -e "\n${COLOR_CYAN}Activating global command...${COLOR_RESET}"
+# Reload shell config
+if [ -n "$BASH_VERSION" ]; then
+    source "$SHELL_CONFIG" 2>/dev/null || true
+elif [ -n "$ZSH_VERSION" ]; then
+    source "$SHELL_CONFIG" 2>/dev/null || true
 fi
 
-# Reload the shell config in current session
-source "$SHELL_CONFIG" 2>/dev/null || true
-
-# Also create alias in current shell session immediately
-alias zeetranslator="python3 $SCRIPT_PATH"
-
-echo -e "${COLOR_GREEN}Command 'zeetranslator' activated in current session${COLOR_RESET}"
-
-if [ "$LANG" = "ID" ]; then
-    echo -e "${COLOR_GREEN}Siap digunakan! Ketik 'zeetranslator' untuk memulai${COLOR_RESET}"
-    echo -e "${COLOR_YELLOW}Catatan: Untuk terminal baru nanti, command sudah otomatis tersedia${COLOR_RESET}\n"
-else
-    echo -e "${COLOR_GREEN}Ready to use! Type 'zeetranslator' to start${COLOR_RESET}"
-    echo -e "${COLOR_YELLOW}Note: For new terminals, command is automatically available${COLOR_RESET}\n"
-fi
+# Success message
+echo ""
+echo -e "${GREEN}╔═══════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║   INSTALLATION COMPLETED SUCCESSFULLY!    ║${NC}"
+echo -e "${GREEN}╚═══════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${CYAN}Installation Details:${NC}"
+echo -e "  Location: ${YELLOW}$INSTALL_DIR${NC}"
+echo -e "  Command:  ${GREEN}zeetranslator${NC}"
+echo ""
+echo -e "${CYAN}Quick Start:${NC}"
+echo ""
+echo -e "  ${GREEN}# Activate command (one time only):${NC}"
+echo -e "  ${YELLOW}source $SHELL_CONFIG${NC}"
+echo ""
+echo -e "  ${GREEN}# Or open a new terminal window${NC}"
+echo ""
+echo -e "  ${GREEN}# Then run:${NC}"
+echo -e "  ${YELLOW}zeetranslator${NC}"
+echo ""
+echo -e "${CYAN}Alternative (without global command):${NC}"
+echo -e "  ${YELLOW}cd $INSTALL_DIR${NC}"
+echo -e "  ${YELLOW}./zee_translator.py${NC}"
+echo ""
+echo -e "${BLUE}Documentation:${NC}"
+echo -e "  README:      ${YELLOW}cat $INSTALL_DIR/README.md${NC}"
+echo -e "  Quick Start: ${YELLOW}cat $INSTALL_DIR/QUICKSTART.md${NC}"
+echo -e "  Full Guide:  ${YELLOW}cat $INSTALL_DIR/GUIDE.md${NC}"
+echo ""
+echo -e "${MAGENTA}Uninstall:${NC}"
+echo -e "  ${YELLOW}cd $INSTALL_DIR && ./uninstall.sh${NC}"
+echo ""
+echo -e "${GREEN}Happy translating! 🎬${NC}"
+echo ""

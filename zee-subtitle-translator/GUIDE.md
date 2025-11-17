@@ -3,6 +3,7 @@
 This guide covers all features and usage scenarios for Zee Subtitle Translator.
 
 ## Table of Contents
+- [Installation](#installation)
 - [Basic Workflow](#basic-workflow)
 - [Translation Modes](#translation-modes)
 - [Multiple Folder Selection](#multiple-folder-selection)
@@ -11,13 +12,54 @@ This guide covers all features and usage scenarios for Zee Subtitle Translator.
 - [Tips & Tricks](#tips--tricks)
 - [Troubleshooting](#troubleshooting)
 
+## Installation
+
+### Quick Install (Recommended)
+
+**Linux/macOS:**
+```bash
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/install_windows.bat" -OutFile "$env:TEMP\zee-install.bat"; & "$env:TEMP\zee-install.bat"
+```
+
+**Android (Termux):**
+```bash
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/setup_termux.sh | bash
+```
+
+Wait 2-5 minutes for automatic installation to complete.
+
+### Activate Command
+
+After installation:
+
+**Linux/macOS/Android:**
+```bash
+source ~/.bashrc  # or source ~/.zshrc on macOS
+```
+
+**Windows:**
+Close and reopen Command Prompt/PowerShell
+
+### Verify Installation
+
+```bash
+zeetranslator
+```
+
+Should display the main menu.
+
 ## Basic Workflow
 
 ### Simple Translation
 
 ```bash
 # Start the program
-./zee_translator.py
+zeetranslator
 
 # Follow the prompts:
 # 1. Choose translation engine (Google/DeepL)
@@ -34,10 +76,10 @@ This guide covers all features and usage scenarios for Zee Subtitle Translator.
 
 ```bash
 # Translate specific folder
-./zee_translator.py /path/to/subtitles/
+zeetranslator /path/to/subtitles/
 
 # Translate ZIP file
-./zee_translator.py /path/to/subtitles.zip
+zeetranslator /path/to/subtitles.zip
 ```
 
 ## Translation Modes
@@ -123,7 +165,7 @@ Progress: |████████████████████| 9/9 bat
 
 ```bash
 # Start program
-./zee_translator.py
+zeetranslator
 
 # Choose: 3. Select multiple folders
 
@@ -142,7 +184,7 @@ Current: /home/user
 # Finish
 > 0            # Start processing
 
-📁 Selected folders:
+📂 Selected folders:
   [1] /home/user/Downloads/TV Show S01
   [2] /home/user/Documents/TV Show S02
 ```
@@ -391,6 +433,58 @@ Names detected: `McDonald`, `New York City` (kept as-is)
 3. Use Aggressive mode (less memory)
 4. Split large files (<5000 lines each)
 
+### Installation Issues
+
+**Problem:** One-line installer failed
+
+**Solutions:**
+
+**Linux/macOS:**
+```bash
+# Try wget if curl fails:
+wget -qO- https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh | bash
+
+# Or download manually:
+curl -O https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh
+chmod +x installer.sh
+./installer.sh
+```
+
+**Windows:**
+Download install_windows.bat manually from GitHub and run as Administrator.
+
+**Android:**
+```bash
+# Update Termux first
+pkg update -y && pkg upgrade -y
+
+# Install dependencies
+pkg install -y python curl unzip
+
+# Try again
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/setup_termux.sh | bash
+```
+
+### Command Not Found
+
+**Problem:** `zeetranslator` command not recognized
+
+**Solutions:**
+
+**Linux/macOS/Android:**
+```bash
+source ~/.bashrc  # or source ~/.zshrc on macOS
+```
+
+**Windows:**
+Restart Command Prompt/PowerShell
+
+**Alternative:**
+```bash
+cd ~/zee-subtitle-translator  # or your install location
+python zee_translator.py
+```
+
 ## Command Reference
 
 ### Main Menu
@@ -412,6 +506,89 @@ Names detected: `McDonald`, `New York City` (kept as-is)
 - `2` - Standard (50/batch) ✅ Recommended
 - `3` - Aggressive (100/batch)
 
+### Language Codes (Common)
+
+| Code | Language |
+|------|----------|
+| `id` | Indonesian |
+| `en` | English |
+| `es` | Spanish |
+| `fr` | French |
+| `de` | German |
+| `it` | Italian |
+| `pt` | Portuguese |
+| `ru` | Russian |
+| `ja` | Japanese |
+| `ko` | Korean |
+| `zh-CN` | Chinese (Simplified) |
+| `ar` | Arabic |
+| `hi` | Hindi |
+| `th` | Thai |
+| `vi` | Vietnamese |
+
+See [full list](https://py-googletrans.readthedocs.io/en/latest/#googletrans-languages) for all supported languages.
+
+## Platform-Specific Notes
+
+### Linux
+- Requires `curl` or `wget` and `unzip`
+- Global command works in bash and zsh
+- Tested on Ubuntu, Debian, Arch, Fedora
+
+### macOS
+- Use `python3` command
+- Works on Intel and Apple Silicon
+- Requires Homebrew for easy setup
+
+### Windows
+- PowerShell recommended over Command Prompt
+- Python auto-installs if missing
+- WindowsApps batch file for global command
+
+### Android (Termux)
+- **Must use F-Droid or GitHub version**
+- Choose Shared Storage for file manager access
+- Widget support for quick launch
+- Storage shortcuts created automatically
+
+## Updating
+
+### Update to Latest Version
+
+**Option 1: Reinstall (Recommended)**
+```bash
+# Uninstall old version
+cd ~/zee-subtitle-translator  # or your install location
+./uninstall.sh
+
+# Install latest
+curl -sSL https://raw.githubusercontent.com/zeewank/zee-subtitle-translator/main/installer.sh | bash
+```
+
+**Option 2: Git Pull (if installed via git clone)**
+```bash
+cd ~/zee-subtitle-translator
+git pull
+pip install --upgrade -r requirements.txt
+```
+
+## Uninstalling
+
+```bash
+# Navigate to install directory
+cd ~/zee-subtitle-translator  # or your install location
+
+# Run uninstaller
+./uninstall.sh
+
+# Optionally remove folder
+cd ..
+rm -rf zee-subtitle-translator
+```
+
 ---
 
-**Need more help?** Open an issue on GitHub!
+**Need more help?** 
+- [FAQ](FAQ.md) - Common questions
+- [GitHub Issues](https://github.com/zeewank/zee-subtitle-translator/issues) - Report bugs
+- [GitHub Discussions](https://github.com/zeewank/zee-subtitle-translator/discussions) - Ask questions
