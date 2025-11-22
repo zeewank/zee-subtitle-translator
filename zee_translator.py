@@ -3,7 +3,7 @@
 """
 Zee Subtitle Translator v1.1
 A powerful batch subtitle translator with multi-format support
-Now with ChatGPT API support!
+Now with ChatGPT API support and Multiple Folder feature!
 
 Author: Zee
 License: MIT
@@ -446,105 +446,171 @@ class BatchTranslatorWrapper:
 # ===============================================================
 # FILE PROCESSING - SRT
 # ===============================================================
+
 def process_srt_file_line(file_path: Path, translator, output_path: Path, add_credit: bool):
     """Process SRT file line by line (Safe mode)"""
-    content = read_file_with_detection(file_path)
-    subs = list(srt.parse(content))
-    
-    for sub in tqdm(subs, desc=str(file_path.name)):
-        original = sub.content
-        cleaned = remove_bracketed(original)
-        
-        if cleaned:
-            translated = translator.translate(cleaned, desc=original[:30])
-            sub.content = translated
-        else:
-            sub.content = ""
-    
-    subs = add_credit_to_srt(subs, add_credit)
-    output_content = srt.compose(subs)
-    output_path.write_text(output_content, encoding='utf-8')
+    try:
+        content = read_file_with_detection(file_path)
+        subs = list(srt.parse(content))
+
+        for sub in tqdm(subs, desc=str(file_path.name)):
+            original = sub.content
+            cleaned = remove_bracketed(original)
+
+            if cleaned:
+                try:
+                    translated = translator.translate(cleaned, desc=original[:30])
+                except Exception as e:
+                    # Defensive: fallback to original text
+                    translated = cleaned
+                sub.content = translated
+            else:
+                sub.content = ""
+
+        subs = add_credit_to_srt(subs, add_credit)
+        output_content = srt.compose(subs)
+        output_path.write_text(output_content, encoding='utf-8')
+        return ("success", "ask")
+    except Exception as e:
+        with open("error_log.txt", "a", encoding="utf-8") as ef:
+            ef.write(f"[ERROR] file={file_path} error={str(e)}\n")
+            ef.write(f"{traceback.format_exc()}\n")
+        return ("failed", "ask")
 
 
 def process_srt_file_batch(file_path: Path, translator, output_path: Path, batch_size: int, add_credit: bool):
     """Process SRT file in batches (Fast mode)"""
-    content = read_file_with_detection(file_path)
-    subs = list(srt.parse(content))
-    
-    texts_to_translate = []
-    for sub in subs:
-        cleaned = remove_bracketed(sub.content)
-        texts_to_translate.append(cleaned)
-    
-    # Process in batches
-    translated_all = []
-    num_batches = (len(texts_to_translate) + batch_size - 1) // batch_size
-    
-    with tqdm(total=num_batches, desc=str(file_path.name)) as pbar:
-        for i in range(0, len(texts_to_translate), batch_size):
-            batch = texts_to_translate[i:i+batch_size]
-            translated_batch = translator.translate_batch(batch)
-            translated_all.extend(translated_batch)
-            pbar.update(1)
-            time.sleep(translator.sleep_time if hasattr(translator, 'sleep_time') else 0.5)
-    
-    # Apply translations
-    for sub, translated in zip(subs, translated_all):
-        sub.content = translated if translated else ""
-    
-    subs = add_credit_to_srt(subs, add_credit)
-    output_content = srt.compose(subs)
-    output_path.write_text(output_content, encoding='utf-8')
+    try:
+        content = read_file_with_detection(file_path)
+        subs = list(srt.parse(content))
+
+        texts_to_translate = []
+        for sub in subs:
+            cleaned = remove_bracketed(sub.content)
+            texts_to_translate.append(cleaned)
+
+        # Process in batches
+        translated_all = []
+        if not texts_to_translate:
+            subs = add_credit_to_srt(subs, add_credit)
+            output_path.write_text(srt.compose(subs), encoding='utf-8')
+            return ("success", "ask")
+
+        num_batches = (len(texts_to_translate) + batch_size - 1) // batch_size
+
+        with tqdm(total=num_batches, desc=str(file_path.name)) as pbar:
+            for i in range(0, len(texts_to_translate), batch_size):
+                batch = texts_to_translate[i:i+batch_size]
+                try:
+                    translated_batch = translator.translate_batch(batch)
+                except Exception as e:
+                    translated_batch = None
+                # Defensive: if API returned None or length mismatch, fallback to per-line
+                if translated_batch is None or len(translated_batch) != len(batch):
+                    fallback = []
+                    for t in batch:
+                        try:
+                            fallback.append(translator.translate(t))
+                        except Exception:
+                            fallback.append(t)
+                    translated_batch = fallback
+                translated_all.extend(translated_batch)
+                pbar.update(1)
+                time.sleep(getattr(translator, 'sleep_time', 0.5))
+
+        # Apply translations
+        for sub, translated in zip(subs, translated_all):
+            sub.content = translated if translated else ""
+
+        subs = add_credit_to_srt(subs, add_credit)
+        output_content = srt.compose(subs)
+        output_path.write_text(output_content, encoding='utf-8')
+        return ("success", "ask")
+    except Exception as e:
+        with open("error_log.txt", "a", encoding="utf-8") as ef:
+            ef.write(f"[ERROR] file={file_path} error={str(e)}\n")
+            ef.write(f"{traceback.format_exc()}\n")
+        return ("failed", "ask")
 
 
-# ===============================================================
-# FILE PROCESSING - ASS/VTT
-# ===============================================================
 def process_ass_vtt_file_line(file_path: Path, translator, output_path: Path, add_credit: bool):
     """Process ASS/VTT file line by line (Safe mode)"""
-    subs = pysubs2.load(str(file_path))
-    
-    for event in tqdm(subs.events, desc=str(file_path.name)):
-        original = event.text
-        cleaned = remove_bracketed(original)
-        
-        if cleaned:
-            translated = translator.translate(cleaned, desc=original[:30])
-            event.text = translated
-        else:
-            event.text = ""
-    
-    subs = add_credit_to_ass_vtt(subs, add_credit)
-    subs.save(str(output_path))
+    try:
+        subs = pysubs2.load(str(file_path))
+
+        for event in tqdm(subs.events, desc=str(file_path.name)):
+            original = event.text
+            cleaned = remove_bracketed(original)
+
+            if cleaned:
+                try:
+                    translated = translator.translate(cleaned, desc=original[:30])
+                except Exception:
+                    translated = cleaned
+                event.text = translated
+            else:
+                event.text = ""
+
+        subs = add_credit_to_ass_vtt(subs, add_credit)
+        subs.save(str(output_path), encoding="utf-8")
+        return ("success", "ask")
+    except Exception as e:
+        with open("error_log.txt", "a", encoding="utf-8") as ef:
+            ef.write(f"[ERROR] file={file_path} error={str(e)}\n")
+            ef.write(f"{traceback.format_exc()}\n")
+        return ("failed", "ask")
 
 
 def process_ass_vtt_file_batch(file_path: Path, translator, output_path: Path, batch_size: int, add_credit: bool):
     """Process ASS/VTT file in batches (Fast mode)"""
-    subs = pysubs2.load(str(file_path))
-    
-    texts_to_translate = []
-    for event in subs.events:
-        cleaned = remove_bracketed(event.text)
-        texts_to_translate.append(cleaned)
-    
-    # Process in batches
-    translated_all = []
-    num_batches = (len(texts_to_translate) + batch_size - 1) // batch_size
-    
-    with tqdm(total=num_batches, desc=str(file_path.name)) as pbar:
-        for i in range(0, len(texts_to_translate), batch_size):
-            batch = texts_to_translate[i:i+batch_size]
-            translated_batch = translator.translate_batch(batch)
-            translated_all.extend(translated_batch)
-            pbar.update(1)
-            time.sleep(translator.sleep_time if hasattr(translator, 'sleep_time') else 0.5)
-    
-    # Apply translations
-    for event, translated in zip(subs.events, translated_all):
-        event.text = translated if translated else ""
-    
-    subs = add_credit_to_ass_vtt(subs, add_credit)
-    subs.save(str(output_path))
+    try:
+        subs = pysubs2.load(str(file_path))
+
+        texts_to_translate = []
+        for event in subs.events:
+            cleaned = remove_bracketed(event.text)
+            texts_to_translate.append(cleaned)
+
+        # Process in batches
+        translated_all = []
+        if not texts_to_translate:
+            subs = add_credit_to_ass_vtt(subs, add_credit)
+            subs.save(str(output_path), encoding="utf-8")
+            return ("success", "ask")
+
+        num_batches = (len(texts_to_translate) + batch_size - 1) // batch_size
+
+        with tqdm(total=num_batches, desc=str(file_path.name)) as pbar:
+            for i in range(0, len(texts_to_translate), batch_size):
+                batch = texts_to_translate[i:i+batch_size]
+                try:
+                    translated_batch = translator.translate_batch(batch)
+                except Exception:
+                    translated_batch = None
+                if translated_batch is None or len(translated_batch) != len(batch):
+                    fallback = []
+                    for t in batch:
+                        try:
+                            fallback.append(translator.translate(t))
+                        except Exception:
+                            fallback.append(t)
+                    translated_batch = fallback
+                translated_all.extend(translated_batch)
+                pbar.update(1)
+                time.sleep(getattr(translator, 'sleep_time', 0.5))
+
+        # Apply translations
+        for event, translated in zip(subs.events, translated_all):
+            event.text = translated if translated else ""
+
+        subs = add_credit_to_ass_vtt(subs, add_credit)
+        subs.save(str(output_path), encoding="utf-8")
+        return ("success", "ask")
+    except Exception as e:
+        with open("error_log.txt", "a", encoding="utf-8") as ef:
+            ef.write(f"[ERROR] file={file_path} error={str(e)}\n")
+            ef.write(f"{traceback.format_exc()}\n")
+        return ("failed", "ask")
 
 
 # ===============================================================
@@ -663,6 +729,326 @@ def select_files_interactive(files: List[Path]) -> List[Path]:
         invalid_text = _("Format tidak valid!", "Invalid format!")
         print(c(invalid_text, Colors.RED))
         return []
+
+
+# ===============================================================
+# MULTIPLE FOLDER BROWSER
+# ===============================================================
+def browse_folders_multiple(start: Path) -> List[Path]:
+    """Memilih multiple folder dengan opsi Buka/Pilih"""
+    selected_folders = []
+    cur = start
+    
+    while True:
+        print(f"\n{c(_('Lokasi saat ini:', 'Current folder:'), Colors.CYAN)} {c(str(cur), Colors.YELLOW)}")
+        print(f"{c(_('Folder terpilih:', 'Selected folders:'), Colors.CYAN)} {c(str(len(selected_folders)), Colors.GREEN)}")
+        
+        if selected_folders:
+            print(c(_("\n📌 Folder yang sudah dipilih:", "\n📌 Selected folders:"), Colors.MAGENTA))
+            for i, folder in enumerate(selected_folders, 1):
+                print(f"  {c(f'[{i}]', Colors.GREEN)} {c(str(folder), Colors.YELLOW)}")
+        
+        items = []
+        try:
+            dirs = sorted([p for p in cur.iterdir() if p.is_dir()], key=lambda p: p.name.lower())
+            items = dirs
+        except PermissionError:
+            print(c(_("Izin ditolak.", "Permission denied."), Colors.RED))
+            cur = cur.parent
+            continue
+        
+        print(c(_("\n📂 Daftar folder:", "\n📂 Folder list:"), Colors.BLUE))
+        for i, p in enumerate(items, 1):
+            marker = c(" ✓", Colors.GREEN) if p in selected_folders else ""
+            print(f"  {i}) {p.name}/{marker}")
+        print(f"  {len(items)+1}) .. {_('(naik ke folder parent)', '(go to parent folder)')}")
+        
+        print(c(_("\n⚙️ Perintah:", "\n⚙️ Commands:"), Colors.CYAN))
+        print(_("  • Ketik nomor lalu tekan ENTER untuk BUKA folder", 
+               "  • Type number then ENTER to OPEN folder"))
+        print(c(_("  • Ketik 's' + nomor (misal: s14) untuk PILIH folder tanpa membuka",
+               "  • Type 's' + number (e.g., s14) to SELECT folder without opening"), Colors.GREEN))
+        print(c(_("  • Ketik 'u' + nomor (misal: u1) untuk HAPUS folder dari pilihan",
+               "  • Type 'u' + number (e.g., u1) to UNSELECT folder from selection"), Colors.RED))
+        print(c(_("  • Ketik '.' (titik) untuk PILIH folder saat ini",
+               "  • Type '.' (dot) to SELECT current folder"), Colors.YELLOW))
+        print(c(_("  • Ketik '0' untuk SELESAI dan lanjut proses",
+               "  • Type '0' to FINISH and continue"), Colors.MAGENTA))
+        print(c(_("  • Ketik 'q' atau 'x' untuk BATAL dan kembali ke menu",
+               "  • Type 'q' or 'x' to CANCEL and return to menu"), Colors.RED))
+        
+        prompt = c(_("\nPilihan Anda: ", "\nYour choice: "), Colors.CYAN)
+        choice = input(prompt).strip().lower()
+        
+        if choice == "0":
+            if selected_folders:
+                return selected_folders
+            else:
+                print(c(_("⚠️ Belum ada folder dipilih!", "⚠️ No folders selected!"), Colors.YELLOW))
+                continue
+        
+        if choice in ('q', 'x', 'exit', 'quit', 'back'): 
+            print(c(_("↩️ Kembali ke menu utama...", "↩️ Returning to main menu..."), Colors.YELLOW))
+            return []
+        
+        if choice == ".":
+            if cur in selected_folders:
+                selected_folders.remove(cur)
+                print(c(f"➖ {_('Dihapus dari pilihan:', 'Removed from selection:')} {cur.name}", Colors.RED))
+            else:
+                selected_folders.append(cur)
+                print(c(f"➕ {_('Ditambahkan ke pilihan:', 'Added to selection:')} {cur.name}", Colors.GREEN))
+            continue
+        
+        if choice.startswith("s") and choice[1:].isdigit():
+            idx = int(choice[1:])
+            if 1 <= idx <= len(items):
+                selected_path = items[idx - 1]
+                if selected_path in selected_folders:
+                    selected_folders.remove(selected_path)
+                    print(c(f"➖ {_('Dihapus dari pilihan:', 'Removed from selection:')} {selected_path.name}", Colors.RED))
+                else:
+                    selected_folders.append(selected_path)
+                    print(c(f"➕ {_('Ditambahkan ke pilihan:', 'Added to selection:')} {selected_path.name}", Colors.GREEN))
+            else:
+                print(c(_("❌ Nomor tidak valid!", "❌ Invalid number!"), Colors.RED))
+            continue
+        
+        if choice.startswith("u") and choice[1:].isdigit():
+            idx = int(choice[1:])
+            if 1 <= idx <= len(selected_folders):
+                removed = selected_folders.pop(idx - 1)
+                print(c(f"➖ {_('Dihapus dari pilihan:', 'Removed from selection:')} {removed.name}", Colors.RED))
+            else:
+                print(c(_("❌ Nomor tidak valid!", "❌ Invalid number!"), Colors.RED))
+            continue
+        
+        if choice.isdigit():
+            idx = int(choice)
+            if idx == len(items) + 1:
+                cur = cur.parent
+            elif 1 <= idx <= len(items):
+                cur = items[idx - 1]
+            else:
+                print(c(_("❌ Nomor tidak valid!", "❌ Invalid number!"), Colors.RED))
+            continue
+        
+        print(c(_("❌ Perintah tidak dikenali!", "❌ Unrecognized command!"), Colors.RED))
+
+
+def detect_sub_files(folder: Path, recursive: bool = False) -> List[Path]:
+    """Deteksi file subtitle dalam folder"""
+    pattern = "**/*" if recursive else "*"
+    extensions = [".srt", ".vtt", ".ass"]
+    files = []
+    for ext in extensions:
+        files.extend(sorted(folder.glob(f"{pattern}{ext}")))
+    return files
+
+
+# ===============================================================
+# MULTIPLE FOLDER PROCESSING
+# ===============================================================
+def process_multiple_folders_interactive(folders: List[Path], engine: str, stats: ProcessStats):
+    """Process multiple folders dengan file subtitle"""
+    print(c(_("\n📁 Folder yang akan diproses:", "\n📁 Folders to process:"), Colors.CYAN))
+    for i, folder in enumerate(folders, 1):
+        print(f"  {c(str(i), Colors.GREEN)}. {c(str(folder), Colors.YELLOW)}")
+    
+    recursive_choice = input(c(_("\n🔍 Cari di sub-folder juga? (y/n): ", "\n🔍 Search in sub-folders too? (y/n): "), Colors.CYAN)).strip().lower()
+    recursive = recursive_choice in ('y', 'yes')
+    
+    # Kumpulkan semua file dari semua folder
+    all_files = []
+    for folder in folders:
+        files = detect_sub_files(folder, recursive)
+        all_files.extend(files)
+    
+    if not all_files:
+        no_files_msg = _("❌ Tidak ada file subtitle ditemukan!", "❌ No subtitle files found!")
+        print(c(no_files_msg, Colors.RED))
+        return
+    
+    # Select files
+    selected_files = select_files_interactive(all_files)
+    if not selected_files:
+        no_select_msg = _("❌ Tidak ada file dipilih", "❌ No files selected")
+        print(c(no_select_msg, Colors.RED))
+        return
+    
+    # Choose output location for multiple folders
+    output_prompt = _("\n📂 Pilih lokasi output untuk MULTIPLE FOLDER:", "\n📂 Choose output location for MULTIPLE FOLDERS:")
+    print(output_prompt)
+    print("  1. " + _("Folder yang sama dengan file asli (setiap folder terpisah)", "Same folder as original files (each folder separate)"))
+    print("  2. " + _("Satu folder output untuk semua file", "One output folder for all files"))
+    print("  q. " + _("Keluar/Kembali", "Exit/Back"))
+    output_choice = input(_("Pilihan [1-2/q] (default 1): ", "Choice [1-2/q] (default 1): ")).strip() or "1"
+    
+    if output_choice.lower() == 'q':
+        return
+    
+    if output_choice == "2":
+        # Mode: Satu output folder
+        base_folder = folders[0].parent if len(folders) > 1 else folders[0]
+        folder_name = input(_("Nama subfolder (default: translated): ", "Subfolder name (default: translated): ")).strip() or "translated"
+        output_dir = base_folder / folder_name
+        output_dir.mkdir(exist_ok=True)
+        output_mode = "subfolder"
+    else:
+        # Mode: Output ke folder asli masing-masing
+        output_dir = None
+        output_mode = "same"
+    
+    # Choose speed mode
+    speed_prompt = _("\n⚙️ Pilih 'Processing Engine' (Kecepatan):", "\n⚙️ Choose 'Processing Engine' (Speed):")
+    print(speed_prompt)
+    print("  1. " + _("Aman (Lambat)", "Safe (Slow)"))
+    print("  2. " + _("Standard (Cepat / Direkomendasikan)", "Standard (Fast / Recommended)"))
+    print("  3. " + _("Aggressive (Sangat Cepat)", "Aggressive (Very Fast)"))
+    print("  q. " + _("Keluar/Kembali", "Exit/Back"))
+    speed_choice = input(_("Pilihan [1-3/q] (default 2): ", "Choice [1-3/q] (default 2): ")).strip() or "2"
+    
+    if speed_choice.lower() == 'q':
+        return
+    
+    batch_size = 1
+    use_batch = False
+    
+    if speed_choice == "1":
+        use_batch = False
+    elif speed_choice == "3":
+        use_batch = True
+        batch_size = 100
+    else:  # 2
+        use_batch = True
+        batch_size = 50
+    
+    # Choose target language
+    lang_prompt = _("🎯 Bahasa target (default: id, atau q untuk keluar): ", "🎯 Target language (default: id, or q to exit): ")
+    target_lang = input(lang_prompt).strip() or "id"
+    
+    if target_lang.lower() == 'q':
+        return
+    
+    # Add credits?
+    credit_prompt = _("🎬 Tambahkan kredit pembuat di awal? (y/n/q default y): ", 
+                     "🎬 Add creator credit at the beginning? (y/n/q default y): ")
+    add_credit_input = input(credit_prompt).strip().lower()
+    
+    if add_credit_input == 'q':
+        return
+    
+    add_credit = add_credit_input != 'n'
+    
+    # Confirmation
+    print("\n" + "✨" * 30)
+    summary_text = _("        RINGKASAN KONFIRMASI", "        CONFIRMATION SUMMARY")
+    print(c(summary_text, Colors.BOLD + Colors.CYAN))
+    print("✨" * 30)
+    
+    source_label = _("Sumber", "Source")
+    engine_label = _("Mesin", "Engine")
+    speed_label = _("Kecepatan", "Speed")
+    target_label = _("Target", "Target")
+    files_label = _("File", "Files")
+    output_label = _("Output", "Output")
+    credit_label = _("Kredit", "Credit")
+    
+    speed_text = _('Aman' if not use_batch else ('Cepat' if batch_size == 50 else 'Aggressive'), 
+                   'Safe' if not use_batch else ('Fast' if batch_size == 50 else 'Aggressive'))
+    processing_text = _("Memproses", "Processing")
+    same_folder_text = _("Folder asli masing-masing", "Original folders (each)")
+    single_folder_text = _("Satu folder output", "Single output folder")
+    yes_text = _("Ya", "Yes")
+    no_text = _("Tidak", "No")
+    
+    print(f"  {source_label}      : {len(folders)} {_('folder', 'folders')}")
+    print(f"  {engine_label}      : {engine}")
+    print(f"  {speed_label}    : {speed_text}")
+    print(f"  {target_label}      : {target_lang}")
+    print(f"  {files_label}        : {processing_text} {len(selected_files)} {_('file', 'files')}")
+    print(f"  {output_label}      : {same_folder_text if output_mode == 'same' else single_folder_text}")
+    if output_mode == "subfolder":
+        print(f"  {_('Folder Output', 'Output Folder')}  : {output_dir}")
+    print(f"  {credit_label}      : {'✅ ' + yes_text if add_credit else '❌ ' + no_text}")
+    print("=" * 70)
+    
+    confirm_prompt = _("\nMulai proses? (y/n/q): ", "\nStart processing? (y/n/q): ")
+    confirm = input(confirm_prompt).strip().lower()
+    if confirm != 'y':
+        cancel_msg = _("❌ Dibatalkan", "❌ Cancelled")
+        print(cancel_msg)
+        return
+    
+    # Create translator
+    if use_batch:
+        translator = BatchTranslatorWrapper(engine, target_lang)
+    else:
+        translator = LineTranslatorWrapper(engine, target_lang)
+    
+    # Process files
+    stats.start()
+    
+    print(f"\n🚀 {_('Memulai terjemahan...', 'Starting translation...')}")
+    print("=" * 70)
+    
+    for idx, file_path in enumerate(selected_files, 1):
+        print(f"\n📄 {_('Memproses file', 'Processing file')} {idx}/{len(selected_files)}: {file_path.name}")
+        
+        try:
+            # Determine output path
+            if output_mode == "subfolder":
+                output_path = output_dir / f"{file_path.stem}.{target_lang}{file_path.suffix}"
+            else:
+                output_path = file_path.parent / f"{file_path.stem}.{target_lang}{file_path.suffix}"
+            
+            # Check if already exists
+            if output_path.exists():
+                overwrite = input(_(f"⚠️  File {output_path.name} sudah ada. Timpa? (y/n): ",
+                                   f"⚠️  File {output_path.name} already exists. Overwrite? (y/n): ")).strip().lower()
+                if overwrite != 'y':
+                    print(_("⏭️  Dilewati", "⏭️  Skipped"))
+                    stats.skipped_count += 1
+                    continue
+            
+            # Process based on file type - PERBAIKAN: tidak unpack NoneType
+            result_tuple = None
+            if file_path.suffix.lower() == '.srt':
+                if use_batch:
+                    result_tuple = process_srt_file_batch(file_path, translator, output_path, batch_size, add_credit)
+                else:
+                    result_tuple = process_srt_file_line(file_path, translator, output_path, add_credit)
+            else:  # .vtt or .ass
+                if use_batch:
+                    result_tuple = process_ass_vtt_file_batch(file_path, translator, output_path, batch_size, add_credit)
+                else:
+                    result_tuple = process_ass_vtt_file_line(file_path, translator, output_path, add_credit)
+            
+            # Handle return value - PERBAIKAN: fungsi sekarang return tuple (status, mode)
+            if result_tuple and len(result_tuple) >= 1:
+                status = result_tuple[0]
+            else:
+                status = "failed"
+                
+            if status == "success":
+                print(c(f"✅ {_('Disimpan', 'Saved')}: {output_path.name}", Colors.GREEN))
+                stats.success_count += 1
+            else:
+                stats.failed_count += 1
+            
+        except KeyboardInterrupt:
+            print(_("\n\n❌ Dibatalkan oleh pengguna", "\n\n❌ Cancelled by user"))
+            stats.stop()
+            stats.print_summary()
+            return
+        except Exception as e:
+            print(c(f"❌ {_('Gagal', 'Failed')}: {str(e)}", Colors.RED))
+            stats.failed_count += 1
+            with open("error_log.txt", "a", encoding="utf-8") as ef:
+                ef.write(f"[ERROR] file={file_path} error={str(e)}\n")
+                ef.write(f"{traceback.format_exc()}\n")
+    
+    stats.stop()
 
 
 # ===============================================================
@@ -817,8 +1203,6 @@ def process_zip_interactive(zip_path: Path, engine: str, stats: ProcessStats):
                 print(f"\n🚀 {_('Memulai terjemahan...', 'Starting translation...')}")
                 print("=" * 70)
                 
-                overwrite_mode = 'ask'
-                
                 for idx, file_path in enumerate(extracted_paths, 1):
                     print(f"\n📄 {_('Memproses file', 'Processing file')} {idx}/{len(extracted_paths)}: {file_path.name}")
                     
@@ -835,19 +1219,29 @@ def process_zip_interactive(zip_path: Path, engine: str, stats: ProcessStats):
                                 stats.skipped_count += 1
                                 continue
                         
-                        # Process based on file type
+                        # Process based on file type - PERBAIKAN: tidak unpack NoneType
+                        result_tuple = None
                         if file_path.suffix.lower() == '.srt':
                             if use_batch:
-                                process_srt_file_batch(file_path, translator, output_dir, overwrite_mode, batch_size, add_credit)
+                                result_tuple = process_srt_file_batch(file_path, translator, output_path, batch_size, add_credit)
                             else:
-                                process_srt_file_line(file_path, translator, output_dir, add_credit)
+                                result_tuple = process_srt_file_line(file_path, translator, output_path, add_credit)
                         else:  # .vtt or .ass
                             if use_batch:
-                                process_ass_vtt_file_batch(file_path, translator, output_dir, overwrite_mode, batch_size, add_credit)
+                                result_tuple = process_ass_vtt_file_batch(file_path, translator, output_path, batch_size, add_credit)
                             else:
-                                process_ass_vtt_file_line(file_path, translator, output_dir, add_credit)
+                                result_tuple = process_ass_vtt_file_line(file_path, translator, output_path, add_credit)
                         
-                        stats.success_count += 1
+                        # Handle return value
+                        if result_tuple and len(result_tuple) >= 1:
+                            status = result_tuple[0]
+                        else:
+                            status = "failed"
+                            
+                        if status == "success":
+                            stats.success_count += 1
+                        else:
+                            stats.failed_count += 1
                         
                     except KeyboardInterrupt:
                         print(_("\n\n❌ Dibatalkan oleh pengguna", "\n\n❌ Cancelled by user"))
@@ -932,18 +1326,29 @@ def process_translation_flow():
     else:
         engine = "google"
     
-    # Choose source
+    # Choose source - TAMBAHKAN OPSI MULTIPLE FOLDER
     source_prompt = _("\n📂 Pilih sumber subtitle:", "\n📂 Choose subtitle source:")
     print(source_prompt)
     print("  1. " + _("Jelajahi folder", "Browse folder"))
     print("  2. " + _("Folder saat ini", "Current folder"))
+    print("  3. " + _("Pilih multiple folder", "Select multiple folders"))  # OPSI BARU
     print("  q. " + _("Keluar/Kembali", "Exit/Back"))
-    folder_choice = input(_("Pilihan [1-2/q]: ", "Choice [1-2/q]: ")).strip() or "1"
+    folder_choice = input(_("Pilihan [1-3/q]: ", "Choice [1-3/q]: ")).strip() or "1"
     
     if folder_choice.lower() == 'q':
         return
     
-    if folder_choice == "1":
+    # Initialize stats
+    stats = ProcessStats()
+    
+    if folder_choice == "3":
+        # OPSI MULTIPLE FOLDER BARU
+        folders = browse_folders_multiple(Path.cwd())
+        if folders:
+            process_multiple_folders_interactive(folders, engine, stats)
+            stats.print_summary()
+        return
+    elif folder_choice == "1":
         source_path = browse_item_interactive()
         if not source_path:
             cancel_msg = _("❌ Dibatalkan", "❌ Cancelled")
@@ -951,9 +1356,6 @@ def process_translation_flow():
             return
     else:
         source_path = Path.cwd()
-    
-    # Initialize stats
-    stats = ProcessStats()
     
     # Find files
     if source_path.is_file():
@@ -1117,20 +1519,30 @@ def process_translation_flow():
                     stats.skipped_count += 1
                     continue
             
-            # Process based on file type
+            # Process based on file type - PERBAIKAN: tidak unpack NoneType
+            result_tuple = None
             if file_path.suffix.lower() == '.srt':
                 if use_batch:
-                    process_srt_file_batch(file_path, translator, output_path, batch_size, add_credit)
+                    result_tuple = process_srt_file_batch(file_path, translator, output_path, batch_size, add_credit)
                 else:
-                    process_srt_file_line(file_path, translator, output_path, add_credit)
+                    result_tuple = process_srt_file_line(file_path, translator, output_path, add_credit)
             else:  # .vtt or .ass
                 if use_batch:
-                    process_ass_vtt_file_batch(file_path, translator, output_path, batch_size, add_credit)
+                    result_tuple = process_ass_vtt_file_batch(file_path, translator, output_path, batch_size, add_credit)
                 else:
-                    process_ass_vtt_file_line(file_path, translator, output_path, add_credit)
+                    result_tuple = process_ass_vtt_file_line(file_path, translator, output_path, add_credit)
             
-            print(c(f"✅ {_('Disimpan', 'Saved')}: {output_path.name}", Colors.GREEN))
-            stats.success_count += 1
+            # Handle return value
+            if result_tuple and len(result_tuple) >= 1:
+                status = result_tuple[0]
+            else:
+                status = "failed"
+                
+            if status == "success":
+                print(c(f"✅ {_('Disimpan', 'Saved')}: {output_path.name}", Colors.GREEN))
+                stats.success_count += 1
+            else:
+                stats.failed_count += 1
             
         except KeyboardInterrupt:
             print(_("\n\n❌ Dibatalkan oleh pengguna", "\n\n❌ Cancelled by user"))
